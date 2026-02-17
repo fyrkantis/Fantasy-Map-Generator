@@ -1,0 +1,27 @@
+// @vitest-environment jsdom
+import {describe, it, expect,} from "vitest";
+import "./states-generator";
+
+
+
+
+describe("defineStateForms" , () => {
+
+    //If funciton exits early, then selectForm is never reached where a form is set. An undefined value is thus expected.
+    describe("when there are no eligible states", () => {
+
+        it("returns early", () => {
+            (globalThis as any).TIME = false;
+
+            const states = [{i: 1, name: "test", removed: false, lock: true}];
+
+            (globalThis as any).pack = { states: states };
+
+            window.States.defineStateForms();
+
+            expect(pack.states[0].form).toBeUndefined();
+        });
+
+
+    });
+});
