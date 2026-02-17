@@ -38,7 +38,26 @@ describe("defineStateForms" , () => {
             expect(pack.states[0].formName).toBeUndefined()
             expect(pack.states[0].fullName).toBeUndefined()
         })
-
-
     })
+   //If Theocracy is true then the form is expected to be "Theocracy"
+    describe("If isTheocracy is true",() => {
+        it("it sets form to Theocracy", () => {
+            (globalThis as any ).TIME = false
+
+            const states = [{ i: 1, center: 1, culture: 0, name: "test", removed: false, lock: false }];
+
+            (globalThis as any).pack = {
+                states,
+                cells: {religion: [0, 1]},
+                cultures: [{ base: 0}],
+                religions: [{}, { expansion: "state"}],
+            };
+
+            window.States.defineStateForms()
+
+            expect(pack.states[0].form).toBe("Theocracy")
+        })
+    })
+
+
 });
