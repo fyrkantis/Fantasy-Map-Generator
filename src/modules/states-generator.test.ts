@@ -58,6 +58,30 @@ describe("defineStateForms" , () => {
             expect(pack.states[0].form).toBe("Theocracy")
         })
     })
+    //If the specified id is in the list, it will only use the specified id. the other states will be left undefined
+    describe("When specified id is in the list", ()=>{
+        it("uses only the specified id", () => {
+            (globalThis as any).TIME = false
+
+            const states = [
+                { i: 0, center: 1, culture: 0, name: "test0", removed: false, lock: false },
+                { i: 1, center: 1, culture: 0, name: "test1", removed: false, lock: false }];
+
+            (globalThis as any).pack = {
+                states,
+                cells: {religion: [0, 1]},
+                cultures: [{ base: 0}],
+                religions: [{}, { expansion: "state"}],
+            };
+
+            window.States.defineStateForms([1])
+
+            expect(pack.states[1].form).toBe("Theocracy");
+            expect(pack.states[0].form).toBeUndefined();
+
+        })
+    })
+
 
 
 });
