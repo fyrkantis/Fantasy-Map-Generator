@@ -85,3 +85,5 @@ declare global {
   var $: (selector: any) => any;
   var scale: number;
 }
+
+export {};
