@@ -1,5 +1,6 @@
 import polylabel from "polylabel";
 import { rn } from "./numberUtils";
+import { signalBranchCoverage } from "./testCoverageUtils";
 
 /**
  * Generates SVG path data for filling a shape defined by a chain of vertices.
@@ -280,48 +281,85 @@ export const connectVertices = ({
   addToChecked?: (cellId: number) => void;
   closeRing?: boolean;
 }) => {
+  const fID = 2;
+  signalBranchCoverage(fID, 0) //B0: 0
   const MAX_ITERATIONS = vertices.c.length;
   const chain = []; // vertices chain to form a path
 
   let next = startingVertex;
+  signalBranchCoverage(fID, 1) //B4T5: 1
   for (let i = 0; i === 0 || next !== startingVertex; i++) {
+    signalBranchCoverage(fID, 2) //B5T6: 2
     const previous = chain.at(-1);
     const current = next;
     chain.push(current);
 
     const neibCells = vertices.c[current];
-    if (addToChecked) neibCells.filter(ofSameType).forEach(addToChecked);
-
+    signalBranchCoverage(fID, 3) //B10T11: 3
+    if (addToChecked) {
+      signalBranchCoverage(fID, 4) //B11T12: 4
+      neibCells.filter(ofSameType).forEach(addToChecked);
+      signalBranchCoverage(fID, 5) //B12T13: 5
+    }
+    signalBranchCoverage(fID, 6) //B11T13: 6
     const [c1, c2, c3] = neibCells.map(ofSameType);
     const [v1, v2, v3] = vertices.v[current];
-
-    if (v1 !== previous && c1 !== c2) next = v1;
-    else if (v2 !== previous && c2 !== c3) next = v2;
-    else if (v3 !== previous && c1 !== c3) next = v3;
-
+    signalBranchCoverage(fID, 7) //B14T15: 7
+    if (v1 !== previous && c1 !== c2) {
+      signalBranchCoverage(fID, 8) //B15T16: 8
+      next = v1;
+      signalBranchCoverage(fID, 9) //B16T21: 9
+    }
+    else if (v2 !== previous && c2 !== c3) {
+      signalBranchCoverage(fID, 10) //B15T17: 10
+      signalBranchCoverage(fID, 11) //B17T18: 11
+      next = v2;
+      signalBranchCoverage(fID, 12) //B18T21: 12
+    }
+    else if (v3 !== previous && c1 !== c3) {
+      signalBranchCoverage(fID, 13) //B17T19: 13
+      signalBranchCoverage(fID, 14) //B19T20: 14
+      next = v3;
+      signalBranchCoverage(fID, 15) //B15T21: 15
+    } else {
+      signalBranchCoverage(fID, 16) //B16T21: 16
+    }
     if (next >= vertices.c.length) {
+      signalBranchCoverage(fID, 17) //B21T22: 17
       window.ERROR &&
         console.error("ConnectVertices: next vertex is out of bounds");
+      signalBranchCoverage(fID, 22) //B23T33: 22
       break;
     }
-
+    signalBranchCoverage(fID, 18) //B21T24: 18
     if (next === current) {
+      signalBranchCoverage(fID, 19) //B24T25: 19
       window.ERROR &&
         console.error("ConnectVertices: next vertex is not found");
+      signalBranchCoverage(fID, 23) //B26T33: 23
       break;
     }
-
+    signalBranchCoverage(fID, 20) //B24T27: 20
     if (i === MAX_ITERATIONS) {
+      signalBranchCoverage(fID, 21) //B27T28: 21
       window.ERROR &&
         console.error(
           "ConnectVertices: max iterations reached",
           MAX_ITERATIONS,
         );
+      signalBranchCoverage(fID, 24) //B32T33: 24
       break;
     }
+    signalBranchCoverage(fID, 25) //B27T5: 25
   }
-
-  if (closeRing) chain.push(startingVertex);
+  signalBranchCoverage(fID, 26) //B5T33: 26
+  if (closeRing) {
+    signalBranchCoverage(fID, 27) //B33T34: 27
+    chain.push(startingVertex);
+    signalBranchCoverage(fID, 28) //B34E1: 28
+  } else {
+    signalBranchCoverage(fID, 29) //B33E1: 29
+  }
   return chain;
 };
 

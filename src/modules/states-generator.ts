@@ -888,118 +888,118 @@ class StatesModule {
               signalBranchCoverage(fID, 45) //B22E12: 28
               return "Ulus"; // Mongolian
             }
-          signalBranchCoverage(fID, 56) //B22T23: 29
+          signalBranchCoverage(fID, 46) //B22T23: 29
           if (base === 16 && (form === "Grand Duchy" || form === "Duchy"))
             {
-              signalBranchCoverage(fID, 57) //B23E13: 30
+              signalBranchCoverage(fID, 47) //B23E13: 30
               return "Horde"; // Turkic
             }
-          signalBranchCoverage(fID, 58) //B23T24: 31
+          signalBranchCoverage(fID, 48) //B23T24: 31
           if (base === 24 && (form === "Grand Duchy" || form === "Duchy"))
             {
-              signalBranchCoverage(fID, 59) //B24E14: 32
+              signalBranchCoverage(fID, 49) //B24E14: 32
               return "Satrapy"; // Iranian
             }
-          signalBranchCoverage(fID, 60) //B24E15: 33
+          signalBranchCoverage(fID, 50) //B24E15: 33
           return form;
         }
-        signalBranchCoverage(fID, 61) //B2T26: 34
+        signalBranchCoverage(fID, 51) //B2T26: 34
         if (s.form === "Republic") {
-          signalBranchCoverage(fID, 62) //B26T27: 35
+          signalBranchCoverage(fID, 52) //B26T27: 35
           // Default name is from weighted array, special case for small states with only 1 burg
           if (tier < 2 && s.burgs === 1) {
-            signalBranchCoverage(fID, 63) //B27T28: 36
+            signalBranchCoverage(fID, 53) //B27T28: 36
             if (
               trimVowels(s.name) === trimVowels(pack.burgs[s.capital].name!)
             ) {
-              signalBranchCoverage(fID, 64) //B28T29: 37
+              signalBranchCoverage(fID, 54) //B28T29: 37
               s.name = pack.burgs[s.capital].name;
-              signalBranchCoverage(fID, 65) //B29E16: 38
+              signalBranchCoverage(fID, 55) //B29E16: 38
               return "Free City";
             }
-            signalBranchCoverage(fID, 66) //B28T30: 39
+            signalBranchCoverage(fID, 56) //B28T30: 39
             if (P(0.3)) {
-              signalBranchCoverage(fID, 67) //B30E17: 40
+              signalBranchCoverage(fID, 57) //B30E17: 40
               return "City-state";
             }
-            signalBranchCoverage(fID, 68) //B30E18: 41
+            signalBranchCoverage(fID, 58) //B30E18: 41
           }
-          signalBranchCoverage(fID, 69) //B27E18: 42
+          signalBranchCoverage(fID, 59) //B27E18: 42
           return rw(republic);
         }
-        signalBranchCoverage(fID, 70) //B26T31: 43
+        signalBranchCoverage(fID, 60) //B26T31: 43
         if (s.form === "Union") {
-          signalBranchCoverage(fID, 71) //B31E19: 44
+          signalBranchCoverage(fID, 61) //B31E19: 44
           return rw(union);
         }
-        signalBranchCoverage(fID, 72) //B31T32: 45
+        signalBranchCoverage(fID, 62) //B31T32: 45
         if (s.form === "Anarchy") {
-          signalBranchCoverage(fID, 73) //B32E20: 46
+          signalBranchCoverage(fID, 63) //B32E20: 46
           return rw(anarchy);
         }
-        signalBranchCoverage(fID, 74) //B32T33: 47
+        signalBranchCoverage(fID, 64) //B32T33: 47
         if (s.form === "Theocracy") {
-          signalBranchCoverage(fID, 75) //B33T34: 48
+          signalBranchCoverage(fID, 65) //B33T34: 48
           // European
           if ([0, 1, 2, 3, 4, 6, 8, 9, 13, 15, 20].includes(base)) {
-            signalBranchCoverage(fID, 76) //B34T35: 49
+            signalBranchCoverage(fID, 66) //B34T35: 49
             if (P(0.1)) {
-              signalBranchCoverage(fID, 77) //B35E21: 50
+              signalBranchCoverage(fID, 67) //B35E21: 50
               return `Divine ${monarchy[tier]}`;
             }
-            signalBranchCoverage(fID, 70) //B35T36: 51
+            signalBranchCoverage(fID, 68) //B35T36: 51
             if (tier < 2 && P(0.5)) {
-              signalBranchCoverage(fID, 71) //B36E22: 52
+              signalBranchCoverage(fID, 69) //B36E22: 52
               return "Diocese";
             }
-            signalBranchCoverage(fID, 72) //B36T37: 53
+            signalBranchCoverage(fID, 70) //B36T37: 53
             if (tier < 2 && P(0.5)) {
-              signalBranchCoverage(fID, 73) //B37E23: 54
+              signalBranchCoverage(fID, 71) //B37E23: 54
               return "Bishopric";
             }
           }
-          signalBranchCoverage(fID, 74) //B34T38: 55
+          signalBranchCoverage(fID, 72) //B34T38: 55
           if (P(0.9) && [7, 5].includes(base)) {
             // Greek, Ruthenian
-            signalBranchCoverage(fID, 75) //B38T39: 56
+            signalBranchCoverage(fID, 73) //B38T39: 56
             if (tier < 2) {
-              signalBranchCoverage(fID, 76) //B39E24: 57
+              signalBranchCoverage(fID, 74) //B39E24: 57
               return "Eparchy";
             }
-            signalBranchCoverage(fID, 77) //B39T40: 58
+            signalBranchCoverage(fID, 75) //B39T40: 58
             if (tier === 2) {
-              signalBranchCoverage(fID, 78) //B40E25: 59
+              signalBranchCoverage(fID, 76) //B40E25: 59
               return "Exarchate";
             }
-            signalBranchCoverage(fID, 79) //B40T41: 60
+            signalBranchCoverage(fID, 77) //B40T41: 60
             if (tier > 2) {
-              signalBranchCoverage(fID, 80) //B41E26: 61
+              signalBranchCoverage(fID, 78) //B41E26: 61
               return "Patriarchate";
             }
           }
-          signalBranchCoverage(fID, 81) //B38T42: 62
+          signalBranchCoverage(fID, 79) //B38T42: 62
           if (P(0.9) && [21, 16].includes(base)) {
-            signalBranchCoverage(fID, 82) //B42E27: 63
+            signalBranchCoverage(fID, 80) //B42E27: 63
             return "Imamah"; // Nigerian, Turkish
           }
-          signalBranchCoverage(fID, 83) //B42T43: 64
+          signalBranchCoverage(fID, 81) //B42T43: 64
           if (tier > 2 && P(0.8) && [18, 17, 28].includes(base)){
-            signalBranchCoverage(fID, 84) //B43E28: 65
+            signalBranchCoverage(fID, 82) //B43E28: 65
             return "Caliphate"; // Arabic, Berber, Swahili
           }
-          signalBranchCoverage(fID, 85) //B43T29: 66
+          signalBranchCoverage(fID, 83) //B43T29: 66
           return rw(theocracy);
         }
-        signalBranchCoverage(fID, 86) //B33E30: 67
+        signalBranchCoverage(fID, 84) //B33E30: 67
       };
 
       s.formName = selectForm(s, tier);
       s.fullName = this.getFullName(s);
-      signalBranchCoverage(fID, 87) //B79T60: 87
+      signalBranchCoverage(fID, 85) //B79T60: 85
     }
-    signalBranchCoverage(fID, 88) //B60T82: 88
+    signalBranchCoverage(fID, 86) //B60T82: 86
     TIME && console.timeEnd("defineStateForms");
-    signalBranchCoverage(fID, 89) //B83E2: 89
+    signalBranchCoverage(fID, 87) //B83E2: 87
   }
 
   getFullName(state: State) {

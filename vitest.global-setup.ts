@@ -4,11 +4,11 @@ export default async () => {
     // In the next two global variables:
     // [0] -> src/modules/states-generator/normalize()
     // [1] -> src/modules/cultures-generator/getHeightCost()
-    // [2] -> src/modules/features/markupGrid()
+    // [2] -> src/utils/pathUtils/connectVertices()
     // [3] -> src/modules/states-generator/expandStates()
     // [4] -> src/modules/states-generator/defineStateForms()
     // Global structure containing the amount of branches in each function. Contains magic numbers.
-    global.maximumCoverage = [18, 19, 22, 31, 21]; 
+    global.maximumCoverage = [20, 19, 30, 32, 88]; 
     // Create Structure for storing coverage results
     global.coverageLog = new Array<Array<boolean>>(5);
     for(let i = 0; i< 5; i++) { 
