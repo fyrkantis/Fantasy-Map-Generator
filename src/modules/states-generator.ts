@@ -16,6 +16,8 @@ import {
   trimVowels,
 } from "../utils";
 
+import { signalBranchCoverage } from "../utils/testCoverageUtils";
+
 declare global {
   var States: StatesModule;
 }
@@ -140,6 +142,8 @@ class StatesModule {
   }
 
   expandStates() {
+    const fID = 3;
+    signalBranchCoverage(fID, 0) //B0: 0
     TIME && console.time("expandStates");
     const { cells, states, cultures, burgs } = pack;
 
@@ -154,16 +158,28 @@ class StatesModule {
       (byId("statesGrowthRate") as HTMLInputElement)?.valueAsNumber || 1;
     const growthRate =
       (cells.i.length / 2) * globalGrowthRate * statesGrowthRate; // limit cost for state growth
-
+    signalBranchCoverage(fID, 1) //B16T17: 1
     // remove state from all cells except of locked
     for (const cellId of cells.i) {
+      signalBranchCoverage(fID, 2) //B17T18: 2
       const state = states[cells.state[cellId]];
-      if (state.lock) continue;
+      signalBranchCoverage(fID, 3) //B18T19: 3
+      if (state.lock) {
+        signalBranchCoverage(fID, 4) //B19T17: 4
+        continue;
+      }
+      signalBranchCoverage(fID, 5) //B19T20: 5
       cells.state[cellId] = 0;
+      signalBranchCoverage(fID, 6) //B20T17: 6
     }
-
+    signalBranchCoverage(fID, 7) //B17T21: 7
     for (const state of states) {
-      if (!state.i || state.removed) continue;
+      signalBranchCoverage(fID, 8) //B21T22: 8
+      if (!state.i || state.removed) {
+        signalBranchCoverage(fID, 9) //B22T21: 9
+        continue;
+      }
+      signalBranchCoverage(fID, 10) //B22T23: 10
 
       const capitalCell = burgs[state.capital].cell;
       cells.state[capitalCell] = state.i;
@@ -172,17 +188,28 @@ class StatesModule {
       queue.push({ e: state.center, p: 0, s: state.i, b }, 0);
       cost[state.center] = 1;
     }
-
+    signalBranchCoverage(fID, 11) //B21T30: 11
     while (queue.length) {
+      signalBranchCoverage(fID, 12) //B30T31: 12
       const next = queue.pop();
 
       const { e, p, s, b } = next;
       const { type, culture } = states[s];
-
+      signalBranchCoverage(fID, 13) //B35T36: 13
       cells.c[e].forEach((e) => {
+        signalBranchCoverage(fID, 14) //B36T37: 14
         const state = states[cells.state[e]];
-        if (state.lock) return; // do not overwrite cell of locked states
-        if (cells.state[e] && e === state.center) return; // do not overwrite capital cells
+        signalBranchCoverage(fID, 15) //B37T38: 15
+        if (state.lock) {
+          signalBranchCoverage(fID, 16) //B38E2: 16
+          return; // do not overwrite cell of locked states
+        }
+        signalBranchCoverage(fID, 17) //B38T39: 17
+        if (cells.state[e] && e === state.center) {
+          signalBranchCoverage(fID, 18) //B39E3: 18
+          return; // do not overwrite capital cells
+        }
+        signalBranchCoverage(fID, 19) //B39T40: 19
 
         const cultureCost = culture === cells.culture[e] ? -9 : 100;
         const populationCost =
@@ -209,16 +236,29 @@ class StatesModule {
           0,
         );
         const totalCost = p + 10 + cellCost / states[s].expansionism;
-
-        if (totalCost > growthRate) return;
-
+        signalBranchCoverage(fID, 20) //B66T67: 20
+        if (totalCost > growthRate) {
+          signalBranchCoverage(fID, 21) //B67E4: 21
+          return;
+        }
+        signalBranchCoverage(fID, 22) //B67T68: 22
         if (!cost[e] || totalCost < cost[e]) {
-          if (cells.h[e] >= 20) cells.state[e] = s; // assign state to cell
+          signalBranchCoverage(fID, 23) //B68T69: 23
+          if (cells.h[e] >= 20){ 
+            signalBranchCoverage(fID, 24) //B69T70: 24
+            cells.state[e] = s; // assign state to cell
+            signalBranchCoverage(fID, 25) //B70T71: 25
+          }
+          signalBranchCoverage(fID, 26) //B69T71: 26
           cost[e] = totalCost;
           queue.push({ e, p: totalCost, s, b }, totalCost);
+          signalBranchCoverage(fID, 27) //B72T36: 27
         }
+        signalBranchCoverage(fID, 28) //B68T36: 28
       });
+      signalBranchCoverage(fID, 29) //B36T30: 29
     }
+    signalBranchCoverage(fID, 30) //B30T73: 30
 
     burgs
       .filter((b) => b.i && !b.removed)
@@ -226,33 +266,66 @@ class StatesModule {
         b.state = cells.state[b.cell]; // assign state to burgs
       });
     TIME && console.timeEnd("expandStates");
+    signalBranchCoverage(fID, 31) //B79E1: 31
   }
 
   normalize() {
+    const fID = 0;
+    signalBranchCoverage(fID, 0) //B0 :0
     TIME && console.time("normalizeStates");
     const { cells, burgs } = pack;
-
+    signalBranchCoverage(fID, 1) //B3T4 :1
     for (const i of cells.i) {
-      if (cells.h[i] < 20 || cells.burg[i]) continue; // do not overwrite burgs
-      if (pack.states[cells.state[i]]?.lock) continue; // do not overwrite cells of locks states
-      if (cells.c[i].some((c) => burgs[cells.burg[c]].capital)) continue; // do not overwrite near capital
+      signalBranchCoverage(fID, 2) //B4T5 :2
+      if (cells.h[i] < 20 || cells.burg[i]) {
+        signalBranchCoverage(fID, 4) //B5T4 :4
+        continue; // do not overwrite burgs
+      }
+      signalBranchCoverage(fID, 3) //B5T6 :3
+      if (pack.states[cells.state[i]]?.lock) {
+        signalBranchCoverage(fID, 6) //B6T4: 6
+        continue; // do not overwrite cells of locks states
+      }
+      signalBranchCoverage(fID, 5) //B6T7: 5
+      if (cells.c[i].some((c) => burgs[cells.burg[c]].capital)){ 
+        signalBranchCoverage(fID, 8) //B7T4: 8
+        continue; // do not overwrite near capital
+      }
+      signalBranchCoverage(fID, 7) //B7T8: 7
       const neibs = cells.c[i].filter((c) => cells.h[c] >= 20);
       const adversaries = neibs.filter(
         (c) =>
           !pack.states[cells.state[c]]?.lock &&
           cells.state[c] !== cells.state[i],
       );
-      if (adversaries.length < 2) continue;
+      signalBranchCoverage(fID, 9) //B13T14: 9
+      if (adversaries.length < 2){
+        signalBranchCoverage(fID, 10) //B14T4: 10
+        continue;
+      } 
+      signalBranchCoverage(fID, 11) //B14T15: 11
       const buddies = neibs.filter(
         (c) =>
           !pack.states[cells.state[c]]?.lock &&
           cells.state[c] === cells.state[i],
       );
-      if (buddies.length > 2) continue;
-      if (adversaries.length <= buddies.length) continue;
+      signalBranchCoverage(fID, 12) //B19T20: 12
+      if (buddies.length > 2){
+        signalBranchCoverage(fID, 13) ////B20T4: 13
+        continue;
+      }
+      signalBranchCoverage(fID, 14) //B20T21: 14 
+      if (adversaries.length <= buddies.length){ 
+        signalBranchCoverage(fID, 15) //B21T4: 15
+        continue
+      };
+      signalBranchCoverage(fID, 16) //B21T22: 16
       cells.state[i] = cells.state[adversaries[0]];
+      signalBranchCoverage(fID, 17) //B22T4: 17
     }
+    signalBranchCoverage(fID, 18) //B4T23: 18
     TIME && console.timeEnd("normalizeStates");
+    signalBranchCoverage(fID, 19) //B23E1: 19
   }
 
   // calculate pole of inaccessibility for each state
@@ -632,10 +705,16 @@ class StatesModule {
 
   // select a forms for listed or all valid states
   defineStateForms(list: number[] | null = null) {
+    const fID = 4;
+    signalBranchCoverage(fID, 0) //B0: 0
     TIME && console.time("defineStateForms");
     const states = pack.states.filter((s) => s.i && !s.removed && !s.lock);
-    if (states.length < 1) return;
-
+    signalBranchCoverage(fID, 1) //B2T3: 1
+    if (states.length < 1) {
+      signalBranchCoverage(fID, 2) //B3E1: 2
+      return;
+    }
+    signalBranchCoverage(fID, 3) //B3T4: 3
     const generic = { Monarchy: 25, Republic: 2, Union: 1 };
     const naval = { Monarchy: 25, Republic: 8, Union: 3 };
 
@@ -690,9 +769,14 @@ class StatesModule {
       Commune: 1,
       Community: 1,
     };
-
+    signalBranchCoverage(fID, 4) //B59T60: 4
     for (const s of states) {
-      if (list && !list.includes(s.i)) continue;
+      signalBranchCoverage(fID, 5) //B60T61: 5
+      if (list && !list.includes(s.i)) {
+        signalBranchCoverage(fID, 6) //B61E3: 6
+        continue;
+      }
+      signalBranchCoverage(fID, 7) //B61T62: 7
       const tier = expTiers[s.i];
 
       const religion = pack.cells.religion[s.center];
@@ -701,67 +785,149 @@ class StatesModule {
         (P(0.1) &&
           ["Organized", "Cult"].includes(pack.religions[religion].type));
       const isAnarchy = P(0.01 - tier / 500);
-
-      if (isTheocracy) s.form = "Theocracy";
-      else if (isAnarchy) s.form = "Anarchy";
-      else s.form = s.type === "Naval" ? rw(naval) : rw(generic);
+      signalBranchCoverage(fID, 8) //B70T71: 8
+      if (isTheocracy) {
+        signalBranchCoverage(fID, 9) //B71T72: 9
+        s.form = "Theocracy";
+        signalBranchCoverage(fID, 5) //B72T78: 14
+      }
+      else if (isAnarchy) {
+        signalBranchCoverage(fID, 10) //B71T73: 10
+        signalBranchCoverage(fID, 11) //B73T74: 11
+        s.form = "Anarchy";
+        signalBranchCoverage(fID, 5) //B74T78: 15
+      }
+      else { 
+        signalBranchCoverage(fID, 12) //B73T75: 12
+        s.form = s.type === "Naval" ? rw(naval) : rw(generic);
+        signalBranchCoverage(fID, 13) //B75T76: 13
+        signalBranchCoverage(fID, 16) //B76T78: 16
+      }
 
       const selectForm = (s: any, tier: number) => {
+        signalBranchCoverage(fID, 17) //B0: 0 
         const base = pack.cultures[s.culture].base;
-
+        signalBranchCoverage(fID, 18) //B1T2: 1
         if (s.form === "Monarchy") {
+          signalBranchCoverage(fID, 19) //B2T3: 2
           const form = monarchy[tier];
           // Default name depends on exponent tier, some culture bases have special names for tiers
+          signalBranchCoverage(fID, 20) //B3T4: 3
           if (s.diplomacy) {
+            signalBranchCoverage(fID, 21) //B4T5: 4
             if (
               form === "Duchy" &&
               s.neighbors.length > 1 &&
               rand(6) < s.neighbors.length &&
               s.diplomacy.includes("Vassal")
-            )
+            ) {
+              signalBranchCoverage(fID, 22) //B5E1: 5
               return "Marches"; // some vassal duchies on borderland
-            if (base === 1 && P(0.3) && s.diplomacy.includes("Vassal"))
+            }
+            signalBranchCoverage(fID, 23) //B5T12: 6
+            if (base === 1 && P(0.3) && s.diplomacy.includes("Vassal")){
+              signalBranchCoverage(fID, 24) //B12E2: 7
               return "Dominion"; // English vassals
-            if (P(0.3) && s.diplomacy.includes("Vassal")) return "Protectorate"; // some vassals
+            }
+            signalBranchCoverage(fID, 25) //B12T13: 8
+            if (P(0.3) && s.diplomacy.includes("Vassal")) {
+              signalBranchCoverage(fID, 26) //B13E3: 9
+              return "Protectorate"; // some vassals
+            }
+            signalBranchCoverage(fID, 27) //B13T14: 10
           }
-
+          signalBranchCoverage(fID, 28) //B4T14: 11
           if (base === 31 && (form === "Empire" || form === "Kingdom"))
-            return "Khanate"; // Mongolian
-          if (base === 16 && form === "Principality") return "Beylik"; // Turkic
+            {
+              signalBranchCoverage(fID, 29) //B14E4: 12
+              return "Khanate"; // Mongolian
+            }
+          signalBranchCoverage(fID, 30) //B14T15: 13
+          if (base === 16 && form === "Principality") {
+            signalBranchCoverage(fID, 31) //B15TE5: 14
+            return "Beylik"; // Turkic
+          }
+          signalBranchCoverage(fID, 32) //B15T16: 15
           if (base === 5 && (form === "Empire" || form === "Kingdom"))
-            return "Tsardom"; // Ruthenian
+            {
+              signalBranchCoverage(fID, 33) //B16E6: 16
+              return "Tsardom"; // Ruthenian
+            }
+          signalBranchCoverage(fID, 34) //B16T17: 17
           if (base === 16 && (form === "Empire" || form === "Kingdom"))
-            return "Khaganate"; // Turkic
+            {
+              signalBranchCoverage(fID, 35) //B17E7: 18
+              return "Khaganate"; // Turkic
+            }
+          signalBranchCoverage(fID, 36) //B17T18: 19
           if (base === 12 && (form === "Kingdom" || form === "Grand Duchy"))
-            return "Shogunate"; // Japanese
-          if ([18, 17].includes(base) && form === "Empire") return "Caliphate"; // Arabic, Berber
+            {
+              signalBranchCoverage(fID, 37) //B18E8: 20
+              return "Shogunate"; // Japanese
+            }
+          signalBranchCoverage(fID, 38) //B18T19: 21
+          if ([18, 17].includes(base) && form === "Empire") {
+            signalBranchCoverage(fID, 39) //B19E9: 22
+            return "Caliphate"; // Arabic, Berber
+          }
+          signalBranchCoverage(fID, 40) //B19T20: 23
           if (base === 18 && (form === "Grand Duchy" || form === "Duchy"))
-            return "Emirate"; // Arabic
+            {
+              signalBranchCoverage(fID, 41) //B20E10: 24
+              return "Emirate"; // Arabic
+            }
+          signalBranchCoverage(fID, 42) //B20T21: 25
           if (base === 7 && (form === "Grand Duchy" || form === "Duchy"))
-            return "Despotate"; // Greek
+            {
+              signalBranchCoverage(fID, 43) //B21E11: 26
+              return "Despotate"; // Greek
+            }
+          signalBranchCoverage(fID, 44) //B21T22: 27
           if (base === 31 && (form === "Grand Duchy" || form === "Duchy"))
-            return "Ulus"; // Mongolian
+            {
+              signalBranchCoverage(fID, 45) //B22E12: 28
+              return "Ulus"; // Mongolian
+            }
+          signalBranchCoverage(fID, 56) //B22T23: 29
           if (base === 16 && (form === "Grand Duchy" || form === "Duchy"))
-            return "Horde"; // Turkic
+            {
+              signalBranchCoverage(fID, 57) //B23E13: 30
+              return "Horde"; // Turkic
+            }
+          signalBranchCoverage(fID, 58) //B23T24: 31
           if (base === 24 && (form === "Grand Duchy" || form === "Duchy"))
-            return "Satrapy"; // Iranian
+            {
+              signalBranchCoverage(fID, 59) //B24E14: 32
+              return "Satrapy"; // Iranian
+            }
+          signalBranchCoverage(fID, 60) //B24E15: 33
           return form;
         }
-
+        signalBranchCoverage(fID, 61) //B2T26: 34
         if (s.form === "Republic") {
+          signalBranchCoverage(fID, 62) //B26T27: 35
           // Default name is from weighted array, special case for small states with only 1 burg
           if (tier < 2 && s.burgs === 1) {
+            signalBranchCoverage(fID, 63) //B27T28: 36
             if (
               trimVowels(s.name) === trimVowels(pack.burgs[s.capital].name!)
             ) {
+              signalBranchCoverage(fID, 64) //B28T29: 37
               s.name = pack.burgs[s.capital].name;
+              signalBranchCoverage(fID, 65) //B29E16: 38
               return "Free City";
             }
-            if (P(0.3)) return "City-state";
+            signalBranchCoverage(fID, 66) //B28T30: 39
+            if (P(0.3)) {
+              signalBranchCoverage(fID, 67) //B30E17: 40
+              return "City-state";
+            }
+            signalBranchCoverage(fID, 68) //B30E18: 41
           }
+          signalBranchCoverage(fID, 69) //B27E18: 42
           return rw(republic);
         }
-
+        signalBranchCoverage(fID, 70) //B26T31: 43
         if (s.form === "Union") return rw(union);
         if (s.form === "Anarchy") return rw(anarchy);
 
