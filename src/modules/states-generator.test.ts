@@ -3,74 +3,81 @@ import { describe, expect, it, beforeEach, afterEach } from "vitest";
 import "./states-generator";
 
 const TEST_PACK = {
-  cells: {
-    i: [0, 1, 2],
-    h: [30, 30, 30],
-    burg: [0, 0, 0],
-    state: [1, 2, 2],
-    c: [[1, 2], [0, 2], [0, 1]],
-  },
-  burgs: [{}],
-  states: [{}, { lock: false }, { lock: false }],
+    cells: {
+        i: [0, 1, 2],
+        h: [30, 30, 30],
+        burg: [0, 0, 0],
+        state: [1, 2, 2],
+        c: [[1, 2], [0, 2], [0, 1]],
+    },
+    burgs: [{}],
+    states: [{}, { lock: false }, { lock: false }],
+}
+
+class MockQueue {
+    queue: any[] = [];
+    get length() { return this.queue.length; }
+    push(item: any, _priority: number) { this.queue.push(item); this.queue.sort((a, b) => a.p - b.p); }
+    pop() { return this.queue.shift(); }
 }
 
 beforeEach(() => {
-  (globalThis as any).TIME = undefined;
-  (globalThis as any).pack = undefined;
+    (globalThis as any).TIME = undefined;
+    (globalThis as any).pack = undefined;
 })
 
 describe("normalize", () => {
-	describe("when 3 neighboring cells have h >= 20 and the first has a different state", () => {
-		it("should copy state from neighboring cell", () => {
-      const pack = TEST_PACK;
-      (globalThis as any).pack = pack
-      window.States.normalize();
-      expect(globalThis.pack).toStrictEqual({ ...pack, cells: { ...pack.cells, state: [2, 2, 2]}});
+    describe("when 3 neighboring cells have h >= 20 and the first has a different state", () => {
+        it("should copy state from neighboring cell", () => {
+            const pack = TEST_PACK;
+            (globalThis as any).pack = pack
+            window.States.normalize();
+            expect(globalThis.pack).toStrictEqual({ ...pack, cells: { ...pack.cells, state: [2, 2, 2] } });
+        });
     });
-	});
-  describe("when 3 neighboring cells have h < 20 except the second, and the first has a different state", () => {
-    it("should not change any cell states", () => {
-      const pack = {
-        ...TEST_PACK,
-        cells: {
-          ...TEST_PACK.cells,
-          h: [20, 19, 20],
-        }
-      };
-      (globalThis as any).pack = pack
-      window.States.normalize();
-      expect(globalThis.pack).toStrictEqual(pack);
+    describe("when 3 neighboring cells have h < 20 except the second, and the first has a different state", () => {
+        it("should not change any cell states", () => {
+            const pack = {
+                ...TEST_PACK,
+                cells: {
+                    ...TEST_PACK.cells,
+                    h: [20, 19, 20],
+                }
+            };
+            (globalThis as any).pack = pack
+            window.States.normalize();
+            expect(globalThis.pack).toStrictEqual(pack);
+        });
     });
-  });
-  describe("when the first out of 3 neighboring cells has a different state but is a burg", () => {
-    it("should not change any cell states", () => {
-      const pack = {
-        ...TEST_PACK,
-        cells: {
-          ...TEST_PACK.cells,
-          burg: [1, 0, 0],
-        },
-        burgs: [{}, {}]
-      };
-      (globalThis as any).pack = pack
-      window.States.normalize();
-      expect(globalThis.pack).toStrictEqual(pack);
+    describe("when the first out of 3 neighboring cells has a different state but is a burg", () => {
+        it("should not change any cell states", () => {
+            const pack = {
+                ...TEST_PACK,
+                cells: {
+                    ...TEST_PACK.cells,
+                    burg: [1, 0, 0],
+                },
+                burgs: [{}, {}]
+            };
+            (globalThis as any).pack = pack
+            window.States.normalize();
+            expect(globalThis.pack).toStrictEqual(pack);
+        });
     });
-  });
-  describe("when the first out of 3 neighboring cells has a different state and but it's locked", () => {
-    it("should not change any cell states", () => {
-      const pack = {
-        ...TEST_PACK,
-        states: [{}, {locked: true}, {locked: false}],
-      };
-      (globalThis as any).pack = pack
-      window.States.normalize();
-      expect(globalThis.pack).toStrictEqual(pack);
+    describe("when the first out of 3 neighboring cells has a different state and but it's locked", () => {
+        it("should not change any cell states", () => {
+            const pack = {
+                ...TEST_PACK,
+                states: [{}, { locked: true }, { locked: false }],
+            };
+            (globalThis as any).pack = pack
+            window.States.normalize();
+            expect(globalThis.pack).toStrictEqual(pack);
+        });
     });
-  });
 });
 
-describe("defineStateForms" , () => {
+describe("defineStateForms", () => {
 
     //If funciton exits early, then selectForm is never reached where a form is set. An undefined value is thus expected.
     describe("when there are no eligible states", () => {
@@ -78,7 +85,7 @@ describe("defineStateForms" , () => {
         it("returns early", () => {
             (globalThis as any).TIME = false;
 
-            const states = [{i: 1, name: "test", removed: false, lock: true}];
+            const states = [{ i: 1, name: "test", removed: false, lock: true }];
 
             (globalThis as any).pack = { states: states };
 
@@ -91,12 +98,12 @@ describe("defineStateForms" , () => {
     //If list is empty, it will continue to the next iteration. Since there is only 1 element in states it will skip the for loop.
     //Thus, no fullName or formName is set.
     describe("when list is empty", () => {
-        it("continues",() => {
+        it("continues", () => {
             (globalThis as any).TIME = false
 
-            const states = [{i:1, name: "test", removed: false, lock: false}];
+            const states = [{ i: 1, name: "test", removed: false, lock: false }];
 
-            (globalThis as any).pack = {states: states}
+            (globalThis as any).pack = { states: states }
 
             window.States.defineStateForms([]);
 
@@ -104,18 +111,18 @@ describe("defineStateForms" , () => {
             expect(pack.states[0].fullName).toBeUndefined()
         })
     })
-   //If Theocracy is true then the form is expected to be "Theocracy"
-    describe("If isTheocracy is true",() => {
+    //If Theocracy is true then the form is expected to be "Theocracy"
+    describe("If isTheocracy is true", () => {
         it("it sets form to Theocracy", () => {
-            (globalThis as any ).TIME = false
+            (globalThis as any).TIME = false
 
             const states = [{ i: 1, center: 1, culture: 0, name: "test", removed: false, lock: false }];
 
             (globalThis as any).pack = {
                 states,
-                cells: {religion: [0, 1]},
-                cultures: [{ base: 0}],
-                religions: [{}, { expansion: "state"}],
+                cells: { religion: [0, 1] },
+                cultures: [{ base: 0 }],
+                religions: [{}, { expansion: "state" }],
             };
 
             window.States.defineStateForms()
@@ -124,7 +131,7 @@ describe("defineStateForms" , () => {
         })
     })
     //If the specified id is in the list, it will only use the specified id. the other states will be left undefined
-    describe("When specified id is in the list", ()=>{
+    describe("When specified id is in the list", () => {
         it("uses only the specified id", () => {
             (globalThis as any).TIME = false
 
@@ -134,9 +141,9 @@ describe("defineStateForms" , () => {
 
             (globalThis as any).pack = {
                 states,
-                cells: {religion: [0, 1]},
-                cultures: [{ base: 0}],
-                religions: [{}, { expansion: "state"}],
+                cells: { religion: [0, 1] },
+                cultures: [{ base: 0 }],
+                religions: [{}, { expansion: "state" }],
             };
 
             window.States.defineStateForms([1])
@@ -167,12 +174,6 @@ describe("expandStates", () => {
         it("neutral cells should remain neutral", () => {
             (globalThis as any).TIME = false;
 
-            class MockQueue {
-                queue: any[] = [];
-                get length() { return this.queue.length; }
-                push(item: any, priority: number) { this.queue.push(item); this.queue.sort((a, b) => a.p - b.p); }
-                pop() { return this.queue.shift(); }
-            }
             (globalThis as any).FlatQueue = MockQueue;
 
             (globalThis as any).pack = {
@@ -216,7 +217,7 @@ describe("expandStates", () => {
         });
 
     });
-    
+
     describe("when states are locked", () => {
         /*
         When the state is locked, other states couldn't take over its land, no matter their expansionalism.
@@ -226,12 +227,6 @@ describe("expandStates", () => {
         it("they should not be taken over", () => {
             (globalThis as any).TIME = false;
 
-            class MockQueue {
-                queue: any[] = [];
-                get length() { return this.queue.length; }
-                push(item: any, priority: number) { this.queue.push(item); this.queue.sort((a, b) => a.p - b.p); }
-                pop() { return this.queue.shift(); }
-            }
             (globalThis as any).FlatQueue = MockQueue;
 
             (globalThis as any).pack = {
@@ -274,7 +269,7 @@ describe("expandStates", () => {
         });
 
     });
-        
+
     describe("all cells are capitals", () => {
         /*
         Capitals could not be taken over.
@@ -284,12 +279,6 @@ describe("expandStates", () => {
         it("they should not be taken over", () => {
             (globalThis as any).TIME = false;
 
-            class MockQueue {
-                queue: any[] = [];
-                get length() { return this.queue.length; }
-                push(item: any, priority: number) { this.queue.push(item); this.queue.sort((a, b) => a.p - b.p); }
-                pop() { return this.queue.shift(); }
-            }
             (globalThis as any).FlatQueue = MockQueue;
 
             (globalThis as any).pack = {
@@ -307,9 +296,9 @@ describe("expandStates", () => {
                 },
                 states: [
                     { i: 0, name: "Neutrals" },
-                    { i: 1, name: "Test State", expansionism: 1e-10, capital: 0, center: 0, culture: 0},
-                    { i: 2, name: "Test State", expansionism: 1, capital: 2, center: 2, culture: 0},
-                    { i: 3, name: "Test State", expansionism: 1e+10, capital: 4, center: 4, culture: 0},
+                    { i: 1, name: "Test State", expansionism: 1e-10, capital: 0, center: 0, culture: 0 },
+                    { i: 2, name: "Test State", expansionism: 1, capital: 2, center: 2, culture: 0 },
+                    { i: 3, name: "Test State", expansionism: 1e+10, capital: 4, center: 4, culture: 0 },
                 ],
                 cultures: [{ i: 0, center: 0 }],
                 burgs: [{ i: 1, cell: 0 }, { i: 2, cell: 1 }, { i: 3, cell: 2 }, { i: 4, cell: 3 }, { i: 5, cell: 4 }, { i: 6, cell: 5 }],
@@ -330,7 +319,7 @@ describe("expandStates", () => {
         });
 
     });
-    
+
     describe("Nomadic and Naval compete for sea crossing", () => {
         /*
         Naval states incur a much lower cost than Nomadic states when crossing oceans (h < 20).
@@ -340,12 +329,6 @@ describe("expandStates", () => {
         it("Naval wins", () => {
             (globalThis as any).TIME = false;
 
-            class MockQueue {
-                queue: any[] = [];
-                get length() { return this.queue.length; }
-                push(item: any, priority: number) { this.queue.push(item); this.queue.sort((a, b) => a.p - b.p); }
-                pop() { return this.queue.shift(); }
-            }
             (globalThis as any).FlatQueue = MockQueue;
 
             (globalThis as any).pack = {
@@ -363,7 +346,7 @@ describe("expandStates", () => {
                 },
                 states: [
                     { i: 0, name: "Neutrals" },
-                    { i: 1, name: "Test State", expansionism: 100, capital: 0, center: 0, culture: 0, type: "Nomadic"},
+                    { i: 1, name: "Test State", expansionism: 100, capital: 0, center: 0, culture: 0, type: "Nomadic" },
                     { i: 2, name: "Test State", expansionism: 10, capital: 1, center: 5, culture: 0, type: "Naval" },
                 ],
                 cultures: [{ i: 0, center: 0 }],
