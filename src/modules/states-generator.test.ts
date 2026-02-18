@@ -1,8 +1,11 @@
 // @vitest-environment jsdom
-import {describe, it, expect,} from "vitest";
+import {describe, it, expect, beforeEach, afterEach} from "vitest";
 import "./states-generator";
 
-
+beforeEach( ()=> {
+    (globalThis as any).TIME = undefined;
+    (globalThis as any).pack = undefined;
+})
 
 
 describe("defineStateForms" , () => {
@@ -85,3 +88,8 @@ describe("defineStateForms" , () => {
 
 
 });
+
+afterEach(() => {
+    (globalThis as any).TIME = undefined;
+    (globalThis as any).pack = undefined;
+})
