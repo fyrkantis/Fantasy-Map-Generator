@@ -11,7 +11,7 @@ import {
   TYPED_ARRAY_MAX_VALUES,
   unique,
 } from "../utils";
-
+import { signalBranchCoverage } from "../utils/testCoverageUtils";
 declare global {
   var Features: FeatureModule;
 }
@@ -98,6 +98,8 @@ class FeatureModule {
    * mark Grid features (ocean, lakes, islands) and calculate distance field
    */
   markupGrid() {
+    const fID = 2
+    signalBranchCoverage(fID, 0) //B0 :0
     TIME && console.time("markupGrid");
     Math.random = Alea(seed); // get the same result on heightmap edit in Erase mode
 
@@ -108,35 +110,54 @@ class FeatureModule {
     const features: GridFeature[] = [];
 
     const queue = [0];
+    signalBranchCoverage(fID, 1) //B10T11 :1
     for (let featureId = 1; queue[0] !== -1; featureId++) {
+      signalBranchCoverage(fID, 2) //B11T12 :2
       const firstCell = queue[0];
       featureIds[firstCell] = featureId;
 
       const land = heights[firstCell] >= 20;
       let border = false; // set true if feature touches map edge
-
+      signalBranchCoverage(fID, 4) //B17T18 :4
       while (queue.length) {
+        signalBranchCoverage(fID, 7) //B18T19 :7
         const cellId = queue.pop() as number;
-        if (!border && borderCells[cellId]) border = true;
-
+        signalBranchCoverage(fID, 8) //B19T20 :8
+        if (!border && borderCells[cellId]){ 
+          signalBranchCoverage(fID, 8) //B20T21 :9
+          border = true;
+          signalBranchCoverage(fID, 10) //B21T22 :10
+        }
+        signalBranchCoverage(fID, 11) //B20T22 :11
         for (const neighborId of neighbors[cellId]) {
+          signalBranchCoverage(fID, 12) //B22T23 :12
           const isNeibLand = heights[neighborId] >= 20;
-
+          signalBranchCoverage(fID, 14) //B24T25 :14
           if (land === isNeibLand && featureIds[neighborId] === this.UNMARKED) {
+            signalBranchCoverage(fID, 15) //B25T26 :15
             featureIds[neighborId] = featureId;
             queue.push(neighborId);
+            signalBranchCoverage(fID, 19) //B27T22 :19
           } else if (land && !isNeibLand) {
+            signalBranchCoverage(fID, 16) //B25T28 :16
+            signalBranchCoverage(fID, 17) //B28T29 :17
             distanceField[cellId] = this.LAND_COAST;
             distanceField[neighborId] = this.WATER_COAST;
+            signalBranchCoverage(fID, 20) //B30T22 :20
           }
+          signalBranchCoverage(fID, 18) //B28T22 :18
         }
+        signalBranchCoverage(fID, 13) //B22T18 :13
       }
+      signalBranchCoverage(fID, 5) //B18T31 :5
 
       const type = land ? "island" : border ? "ocean" : "lake";
       features.push({ i: featureId, land, border, type });
 
       queue[0] = featureIds.indexOf(this.UNMARKED); // find unmarked cell
+      signalBranchCoverage(fID, 6) //B35T11 :6
     }
+    signalBranchCoverage(fID, 3) //B11T36 :3
 
     // markup deep ocean cells
     this.markup({
@@ -151,6 +172,7 @@ class FeatureModule {
     grid.features = [0, ...features];
 
     TIME && console.timeEnd("markupGrid");
+    signalBranchCoverage(fID, 21) //B49E1 :21
   }
 
   /**
