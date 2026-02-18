@@ -5,5 +5,9 @@ export default {
         outDir: '../dist',
         assetsDir: './',
     },
+    test: {
+        globalSetup: './vitest.global-setup.ts',
+        setupFiles: ['./vitest.setup.ts'],
+    },
     publicDir: '../public',
 }
