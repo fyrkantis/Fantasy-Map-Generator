@@ -230,12 +230,10 @@ export class StatesModule {
 
   normalize() {
     TIME && console.time("normalizeStates");
-    const { cells, burgs } = pack;
+    const { cells } = pack;
 
     for (const i of cells.i) {
-      if (cells.h[i] < 20 || cells.burg[i]) continue; // do not overwrite burgs
-      if (pack.states[cells.state[i]]?.lock) continue; // do not overwrite cells of locks states
-      if (cells.c[i].some((c) => burgs[cells.burg[c]].capital)) continue; // do not overwrite near capital
+      if (!this.isCellOverwritable(i)) continue;
       const neibs = cells.c[i].filter((c) => cells.h[c] >= 20);
       const adversaries = neibs.filter(
         (c) =>
@@ -253,6 +251,15 @@ export class StatesModule {
       cells.state[i] = cells.state[adversaries[0]];
     }
     TIME && console.timeEnd("normalizeStates");
+  }
+
+  private isCellOverwritable(i: number): boolean {
+    const { cells, burgs } = pack;
+
+    if (cells.h[i] < 20 || cells.burg[i]) return false; // do not overwrite burgs
+    if (pack.states[cells.state[i]]?.lock) return false; // do not overwrite cells of locks states
+    if (cells.c[i].some((c) => burgs[cells.burg[c]].capital)) return false; // do not overwrite near capital
+    return true;
   }
 
   // calculate pole of inaccessibility for each state
