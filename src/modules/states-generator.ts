@@ -54,7 +54,7 @@ export interface State {
   provinces?: number[];
 }
 
-class StatesModule {
+export class StatesModule {
   private createStates() {
     const states: State[] = [{ i: 0, name: "Neutrals" } as State];
     const each5th = each(5);
