@@ -6,7 +6,11 @@ import "./states-generator";
 describe("expandStates", () => {
 
     describe("when expansionalism is arbitrarily small", () => {
-
+        /* 
+        As additional cost of reaching a cell is given by 10 + cellCost / state.expansionalism,
+        if expansionalism is arbitrarily small, then the additional cost would be close to +infinity.
+        Expansion would be impossible given finite growthrate, resulting in all states owning their original land (capital) only.
+        */
         it("neutral cells should remain neutral", () => {
             (globalThis as any).TIME = false;
 
@@ -61,7 +65,11 @@ describe("expandStates", () => {
     });
     
     describe("when states are locked", () => {
-
+        /*
+        When the state is locked, other states couldn't take over its land, no matter their expansionalism.
+        Given a state A with very low expansionalism, but locked, and another state B with very high expansionalism,
+        and is neighboring state A, even if state B could theoretically take over state A, it should not happen if state A is locked.
+        */
         it("they should not be taken over", () => {
             (globalThis as any).TIME = false;
 
@@ -114,10 +122,12 @@ describe("expandStates", () => {
 
     });
         
-    // TODO: Test 3 - Capital should not be taken over
-    
     describe("all cells are capitals", () => {
-
+        /*
+        Capitals could not be taken over.
+        Given a set of neighboring capitals owned by states with various expansionalism,
+        the ownership of those capital states should remain unchanged.
+        */
         it("they should not be taken over", () => {
             (globalThis as any).TIME = false;
 
@@ -133,7 +143,7 @@ describe("expandStates", () => {
                 cells: {
                     i: [0, 1, 2, 3, 4, 5], // Cell indices
                     c: [[1, 2, 3, 4, 5], [0, 2, 3, 4, 5], [0, 1, 3, 4, 5], [0, 1, 2, 4, 5], [0, 1, 2, 3, 5], [0, 1, 2, 3, 4]], // Adjacency (neighbor) list
-                    state: new Uint16Array([1, 2, 3, 4, 5, 6]),
+                    state: new Uint16Array([1, 0, 2, 0, 3, 0]),
                     culture: new Uint16Array([0, 0, 0, 0, 0, 0]),
                     h: new Uint8Array([25, 25, 25, 25, 25, 25]), // Height (25 = land)
                     s: new Uint16Array([10, 10, 10, 10, 10, 10]), // Suitability
@@ -144,12 +154,9 @@ describe("expandStates", () => {
                 },
                 states: [
                     { i: 0, name: "Neutrals" },
-                    { i: 1, name: "Test State", expansionism: 1e-10, capital: 0, center: 0, culture: 0, lock: true },
-                    { i: 2, name: "Test State", expansionism: 1e+10, capital: 1, center: 1, culture: 0, lock: false },
-                    { i: 3, name: "Test State", expansionism: 1e-10, capital: 2, center: 2, culture: 0, lock: true },
-                    { i: 4, name: "Test State", expansionism: 1e+10, capital: 3, center: 3, culture: 0, lock: false },
-                    { i: 5, name: "Test State", expansionism: 1e-10, capital: 4, center: 4, culture: 0, lock: true },
-                    { i: 6, name: "Test State", expansionism: 1e+10, capital: 5, center: 5, culture: 0, lock: false },
+                    { i: 1, name: "Test State", expansionism: 1e-10, capital: 0, center: 0, culture: 0},
+                    { i: 2, name: "Test State", expansionism: 1, capital: 2, center: 2, culture: 0},
+                    { i: 3, name: "Test State", expansionism: 1e+10, capital: 4, center: 4, culture: 0},
                 ],
                 cultures: [{ i: 0, center: 0 }],
                 burgs: [{ i: 1, cell: 0 }, { i: 2, cell: 1 }, { i: 3, cell: 2 }, { i: 4, cell: 3 }, { i: 5, cell: 4 }, { i: 6, cell: 5 }],
@@ -164,20 +171,19 @@ describe("expandStates", () => {
             window.States.expandStates();
 
             expect(pack.cells.state[0]).toBe(1)
-            expect(pack.cells.state[1]).toBe(2)
-            expect(pack.cells.state[2]).toBe(3)
-            expect(pack.cells.state[3]).toBe(4)
-            expect(pack.cells.state[4]).toBe(5)
-            expect(pack.cells.state[5]).toBe(6)
+            expect(pack.cells.state[2]).toBe(2)
+            expect(pack.cells.state[4]).toBe(3)
 
         });
 
     });
     
-    // TODO: Test 4 - Naval expand better Nomadic than highland for height
-        
     describe("Nomadic and Naval compete for sea crossing", () => {
-
+        /*
+        Naval states incur a much lower cost than Nomadic states when crossing oceans (h < 20).
+        When they are equidistant to a neutral island (neutral cells surrounded by cells with h < 20),
+        the island should be captured by the Naval state, even if the nomadic state has a relatively higher expansionalism.
+        */
         it("Naval wins", () => {
             (globalThis as any).TIME = false;
 
@@ -204,7 +210,7 @@ describe("expandStates", () => {
                 },
                 states: [
                     { i: 0, name: "Neutrals" },
-                    { i: 1, name: "Test State", expansionism: 10, capital: 0, center: 0, culture: 0, type: "Nomadic"},
+                    { i: 1, name: "Test State", expansionism: 100, capital: 0, center: 0, culture: 0, type: "Nomadic"},
                     { i: 2, name: "Test State", expansionism: 10, capital: 1, center: 5, culture: 0, type: "Naval" },
                 ],
                 cultures: [{ i: 0, center: 0 }],
