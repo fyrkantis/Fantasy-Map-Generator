@@ -11,6 +11,7 @@ import {
   rn,
   rw,
 } from "../utils";
+import {signalBranchCoverage} from "../utils/testCoverageUtils";
 
 declare global {
   var Cultures: CulturesModule;
@@ -1324,17 +1325,55 @@ class CulturesModule {
     };
 
     const getHeightCost = (i: number, h: number, type: string) => {
+      const fId = 1
+      signalBranchCoverage(fId, 0); // B0: 0
       const f = pack.features[cells.f[i]],
         a = cells.area[i];
-      if (type === "Lake" && f.type === "lake") return 10; // no lake crossing penalty for Lake cultures
-      if (type === "Naval" && h < 20) return a * 2; // low sea/lake crossing penalty for Naval cultures
-      if (type === "Nomadic" && h < 20) return a * 50; // giant sea/lake crossing penalty for Nomads
-      if (h < 20) return a * 6; // general sea/lake crossing penalty
-      if (type === "Highland" && h < 44) return 3000; // giant penalty for highlanders on lowlands
-      if (type === "Highland" && h < 62) return 200; // giant penalty for highlanders on lowhills
-      if (type === "Highland") return 0; // no penalty for highlanders on highlands
-      if (h >= 67) return 200; // general mountains crossing penalty
-      if (h >= 44) return 30; // general hills crossing penalty
+      if (type === "Lake" && f.type === "lake"){
+        signalBranchCoverage(fId, 1); //B3E1: 1
+        return 10; // no lake crossing penalty for Lake cultures
+      }
+      signalBranchCoverage(fId, 2); //B3T4: 2
+      if (type === "Naval" && h < 20) {
+        signalBranchCoverage(fId, 3); //B4E2: 3
+        return a * 2; // low sea/lake crossing penalty for Naval cultures
+      }
+      signalBranchCoverage(fId, 4); //B4T5: 4 
+      if (type === "Nomadic" && h < 20) {
+        signalBranchCoverage(fId, 5); //B5E3: 5
+        return a * 50; // giant sea/lake crossing penalty for Nomads
+      }
+      signalBranchCoverage(fId, 6); //B5T6: 6
+      if (h < 20) {
+        signalBranchCoverage(fId, 7); //B6E4: 7
+        return a * 6; // general sea/lake crossing penalty
+      }
+      signalBranchCoverage(fId, 8); //B6T7: 8
+      if (type === "Highland" && h < 44) {
+        signalBranchCoverage(fId, 9); //B7E5: 9
+        return 3000; // giant penalty for highlanders on lowlands
+      }
+      signalBranchCoverage(fId, 10); //B7T8: 10
+      if (type === "Highland" && h < 62) {
+        signalBranchCoverage(fId, 11); //B8E6: 11
+        return 200; // giant penalty for highlanders on lowhills
+      }
+      signalBranchCoverage(fId, 12); //B8T9: 12
+      if (type === "Highland") {
+        signalBranchCoverage(fId, 13); //B9E7: 13
+        return 0; // no penalty for highlanders on highlands
+      }
+      signalBranchCoverage(fId, 14); //B9T10: 14
+      if (h >= 67) { 
+        signalBranchCoverage(fId, 15); //B10E8: 15
+        return 200; // general mountains crossing penalty
+      }
+      signalBranchCoverage(fId, 16); //B10T11: 16
+      if (h >= 44) {
+        signalBranchCoverage(fId, 17); //B11E9: 17
+        return 30; // general hills crossing penalty
+      }
+      signalBranchCoverage(fId, 18); //B11E10: 18
       return 0;
     };
 
@@ -1355,7 +1394,7 @@ class CulturesModule {
       if (t !== -1) return type === "Naval" || type === "Lake" ? 100 : 0; // penalty for mainland for navals
       return 0;
     };
-
+    
     while (queue.length) {
       const { cellId, priority, cultureId } = queue.pop();
       const { type, expansionism } = cultures[cultureId];
