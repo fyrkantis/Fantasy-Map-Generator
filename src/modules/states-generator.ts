@@ -928,34 +928,78 @@ class StatesModule {
           return rw(republic);
         }
         signalBranchCoverage(fID, 70) //B26T31: 43
-        if (s.form === "Union") return rw(union);
-        if (s.form === "Anarchy") return rw(anarchy);
-
+        if (s.form === "Union") {
+          signalBranchCoverage(fID, 71) //B31E19: 44
+          return rw(union);
+        }
+        signalBranchCoverage(fID, 72) //B31T32: 45
+        if (s.form === "Anarchy") {
+          signalBranchCoverage(fID, 73) //B32E20: 46
+          return rw(anarchy);
+        }
+        signalBranchCoverage(fID, 74) //B32T33: 47
         if (s.form === "Theocracy") {
+          signalBranchCoverage(fID, 75) //B33T34: 48
           // European
           if ([0, 1, 2, 3, 4, 6, 8, 9, 13, 15, 20].includes(base)) {
-            if (P(0.1)) return `Divine ${monarchy[tier]}`;
-            if (tier < 2 && P(0.5)) return "Diocese";
-            if (tier < 2 && P(0.5)) return "Bishopric";
+            signalBranchCoverage(fID, 76) //B34T35: 49
+            if (P(0.1)) {
+              signalBranchCoverage(fID, 77) //B35E21: 50
+              return `Divine ${monarchy[tier]}`;
+            }
+            signalBranchCoverage(fID, 70) //B35T36: 51
+            if (tier < 2 && P(0.5)) {
+              signalBranchCoverage(fID, 71) //B36E22: 52
+              return "Diocese";
+            }
+            signalBranchCoverage(fID, 72) //B36T37: 53
+            if (tier < 2 && P(0.5)) {
+              signalBranchCoverage(fID, 73) //B37E23: 54
+              return "Bishopric";
+            }
           }
+          signalBranchCoverage(fID, 74) //B34T38: 55
           if (P(0.9) && [7, 5].includes(base)) {
             // Greek, Ruthenian
-            if (tier < 2) return "Eparchy";
-            if (tier === 2) return "Exarchate";
-            if (tier > 2) return "Patriarchate";
+            signalBranchCoverage(fID, 75) //B38T39: 56
+            if (tier < 2) {
+              signalBranchCoverage(fID, 76) //B39E24: 57
+              return "Eparchy";
+            }
+            signalBranchCoverage(fID, 77) //B39T40: 58
+            if (tier === 2) {
+              signalBranchCoverage(fID, 78) //B40E25: 59
+              return "Exarchate";
+            }
+            signalBranchCoverage(fID, 79) //B40T41: 60
+            if (tier > 2) {
+              signalBranchCoverage(fID, 80) //B41E26: 61
+              return "Patriarchate";
+            }
           }
-          if (P(0.9) && [21, 16].includes(base)) return "Imamah"; // Nigerian, Turkish
-          if (tier > 2 && P(0.8) && [18, 17, 28].includes(base))
+          signalBranchCoverage(fID, 81) //B38T42: 62
+          if (P(0.9) && [21, 16].includes(base)) {
+            signalBranchCoverage(fID, 82) //B42E27: 63
+            return "Imamah"; // Nigerian, Turkish
+          }
+          signalBranchCoverage(fID, 83) //B42T43: 64
+          if (tier > 2 && P(0.8) && [18, 17, 28].includes(base)){
+            signalBranchCoverage(fID, 84) //B43E28: 65
             return "Caliphate"; // Arabic, Berber, Swahili
+          }
+          signalBranchCoverage(fID, 85) //B43T29: 66
           return rw(theocracy);
         }
+        signalBranchCoverage(fID, 86) //B33E30: 67
       };
 
       s.formName = selectForm(s, tier);
       s.fullName = this.getFullName(s);
+      signalBranchCoverage(fID, 87) //B79T60: 87
     }
-
+    signalBranchCoverage(fID, 88) //B60T82: 88
     TIME && console.timeEnd("defineStateForms");
+    signalBranchCoverage(fID, 89) //B83E2: 89
   }
 
   getFullName(state: State) {
