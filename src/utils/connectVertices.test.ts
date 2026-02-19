@@ -1,25 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { connectVertices } from './pathUtils'
 
-describe('Math Operations', () => {
-  
-  describe('Addition', () => {
-    it('should calculate the sum of two positive numbers', () => {
-      expect(1 + 1).toBe(2)
-    })
-
-    it('should return a negative number when adding two negatives', () => {
-      expect(-1 + -1).toBe(-2)
-    })
-  })
-
-  describe('Multiplication', () => {
-    it('should multiply two numbers correctly', () => {
-      expect(2 * 3).toBe(6)
-    })
-  })
-})
-
 describe('Connect Vertices', () => {
   
     const vertices1 = {
