@@ -257,6 +257,27 @@ export const getPolesOfInaccessibility = (
   return Object.fromEntries(poles);
 };
 
+const connectFindNextVertex = (
+  c: [number, number, number],
+  v: [number, number, number],
+  previous: number | undefined,
+  current: number
+) => {
+  if (v[0] !== previous && c[0] !== c[1]){
+    return v[0];
+  } 
+  
+  if (v[1] !== previous && c[1] !== c[2]) {
+     return  v[1];
+  }
+  
+  if (v[2] !== previous && c[0] !== c[2]){
+    return v[2];
+  }
+
+  return current;
+}
+
 /**
  * Connects vertices to form a closed path based on cell type.
  * @param {object} options - Options for connecting vertices.
@@ -295,9 +316,12 @@ export const connectVertices = ({
     const [c1, c2, c3] = neibCells.map(ofSameType);
     const [v1, v2, v3] = vertices.v[current];
 
-    if (v1 !== previous && c1 !== c2) next = v1;
-    else if (v2 !== previous && c2 !== c3) next = v2;
-    else if (v3 !== previous && c1 !== c3) next = v3;
+    next = connectFindNextVertex(
+      [c1,c2,c3],
+      [v1,v2,v3],
+      previous,
+      current
+    )
 
     if (next >= vertices.c.length) {
       window.ERROR &&
