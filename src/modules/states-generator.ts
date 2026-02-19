@@ -139,22 +139,22 @@ export class StatesModule {
     TIME && console.timeEnd("generateStates");
   }
 
-  private calculateCellCost(cell: number, state: State, biome: number) {
-            const cultureCost = state.culture === pack.cells.culture[cell] ? -9 : 100;
+  private calculateCellCost(cell: number, biome: number, type : string, culture : number) {
+            const cultureCost = culture === pack.cells.culture[cell] ? -9 : 100;
         const populationCost =
           pack.cells.h[cell] < 20
             ? 0
             : pack.cells.s[cell]
               ? Math.max(20 - pack.cells.s[cell], 0)
               : 5000;
-        const biomeCost = this.getBiomeCost(biome, pack.cells.biome[cell], state.type);
+        const biomeCost = this.getBiomeCost(biome, pack.cells.biome[cell], type);
         const heightCost = this.getHeightCost(
           pack.features[pack.cells.f[cell]],
           pack.cells.h[cell],
-          state.type,
+          type,
         );
-        const riverCost = this.getRiverCost(pack.cells.r[cell], cell, state.type);
-        const typeCost = this.getTypeCost(pack.cells.t[cell], state.type);
+        const riverCost = this.getRiverCost(pack.cells.r[cell], cell, type);
+        const typeCost = this.getTypeCost(pack.cells.t[cell], type);
         return Math.max(
           cultureCost +
             populationCost +
@@ -227,12 +227,13 @@ export class StatesModule {
       const next = queue.pop();
 
       const { e, p, s, b } = next;
+      const { type, culture } = states[s];
 
       cells.c[e].forEach((e) => {
         const state = states[cells.state[e]];
         if (!this.cellOverwritable(state, cells, e)) return;
 
-        const totalCost = p + 10 + this.calculateCellCost(e, state, b) / states[s].expansionism;
+        const totalCost = p + 10 + this.calculateCellCost(e, b, type, culture) / states[s].expansionism;
 
         if (totalCost > growthRate) return;
 
