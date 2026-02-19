@@ -6,8 +6,8 @@ export default {
         assetsDir: './',
     },
     test: {
-        globalSetup: './vitest.global-setup.ts',
-        setupFiles: ['./vitest.setup.ts'],
+        setupFiles: ['./vitest.setup.ts']
     },
+
     publicDir: '../public',
 }
