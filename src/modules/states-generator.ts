@@ -139,6 +139,61 @@ export class StatesModule {
     TIME && console.timeEnd("generateStates");
   }
 
+  private calculateCellCost(cell: number, state: State, biome: number) {
+            const cultureCost = state.culture === pack.cells.culture[cell] ? -9 : 100;
+        const populationCost =
+          pack.cells.h[cell] < 20
+            ? 0
+            : pack.cells.s[cell]
+              ? Math.max(20 - pack.cells.s[cell], 0)
+              : 5000;
+        const biomeCost = this.getBiomeCost(biome, pack.cells.biome[cell], state.type);
+        const heightCost = this.getHeightCost(
+          pack.features[pack.cells.f[cell]],
+          pack.cells.h[cell],
+          state.type,
+        );
+        const riverCost = this.getRiverCost(pack.cells.r[cell], cell, state.type);
+        const typeCost = this.getTypeCost(pack.cells.t[cell], state.type);
+        return Math.max(
+          cultureCost +
+            populationCost +
+            biomeCost +
+            heightCost +
+            riverCost +
+            typeCost,
+          0,
+        );
+  }
+
+  private cellOverwritable(state : State, cells : any , cell : number) {
+
+        if (state.lock) return false; // do not overwrite cell of locked states
+        if (cells.state[cell] && cell === state.center) return false; // do not overwrite capital cells
+        return true;
+
+  }
+
+  private resetCellStates(cells : any, states : State[]) {
+    for (const cellId of cells.i) {
+      const state = states[cells.state[cellId]];
+      if (state.lock) continue;
+      cells.state[cellId] = 0;
+    }
+  }
+
+  private stateValid(state: State) {
+    return state.i && !state.removed;
+  }
+
+  private getGlobalGrowthRate() {
+    return (byId("growthRate") as HTMLInputElement)?.valueAsNumber || 1;
+  }
+
+  private getStatesGrowthRate() {
+    return(byId("statesGrowthRate") as HTMLInputElement)?.valueAsNumber || 1;
+  }
+
   expandStates() {
     TIME && console.time("expandStates");
     const { cells, states, cultures, burgs } = pack;
@@ -148,22 +203,17 @@ export class StatesModule {
     const queue = new FlatQueue();
     const cost: number[] = [];
 
-    const globalGrowthRate =
-      (byId("growthRate") as HTMLInputElement)?.valueAsNumber || 1;
-    const statesGrowthRate =
-      (byId("statesGrowthRate") as HTMLInputElement)?.valueAsNumber || 1;
+    const globalGrowthRate = this.getGlobalGrowthRate();
+      
+    const statesGrowthRate = this.getStatesGrowthRate();
     const growthRate =
       (cells.i.length / 2) * globalGrowthRate * statesGrowthRate; // limit cost for state growth
 
     // remove state from all cells except of locked
-    for (const cellId of cells.i) {
-      const state = states[cells.state[cellId]];
-      if (state.lock) continue;
-      cells.state[cellId] = 0;
-    }
+    this.resetCellStates(cells, states);
 
     for (const state of states) {
-      if (!state.i || state.removed) continue;
+      if (!this.stateValid(state)) continue;
 
       const capitalCell = burgs[state.capital].cell;
       cells.state[capitalCell] = state.i;
@@ -177,38 +227,12 @@ export class StatesModule {
       const next = queue.pop();
 
       const { e, p, s, b } = next;
-      const { type, culture } = states[s];
 
       cells.c[e].forEach((e) => {
         const state = states[cells.state[e]];
-        if (state.lock) return; // do not overwrite cell of locked states
-        if (cells.state[e] && e === state.center) return; // do not overwrite capital cells
+        if (!this.cellOverwritable(state, cells, e)) return;
 
-        const cultureCost = culture === cells.culture[e] ? -9 : 100;
-        const populationCost =
-          cells.h[e] < 20
-            ? 0
-            : cells.s[e]
-              ? Math.max(20 - cells.s[e], 0)
-              : 5000;
-        const biomeCost = this.getBiomeCost(b, cells.biome[e], type);
-        const heightCost = this.getHeightCost(
-          pack.features[cells.f[e]],
-          cells.h[e],
-          type,
-        );
-        const riverCost = this.getRiverCost(cells.r[e], e, type);
-        const typeCost = this.getTypeCost(cells.t[e], type);
-        const cellCost = Math.max(
-          cultureCost +
-            populationCost +
-            biomeCost +
-            heightCost +
-            riverCost +
-            typeCost,
-          0,
-        );
-        const totalCost = p + 10 + cellCost / states[s].expansionism;
+        const totalCost = p + 10 + this.calculateCellCost(e, state, b) / states[s].expansionism;
 
         if (totalCost > growthRate) return;
 
