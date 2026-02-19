@@ -270,7 +270,7 @@ describe("expandStates", () => {
 
     });
 
-    describe("all cells are capitals", () => {
+    describe("when cells are capitals", () => {
         /*
         Capitals could not be taken over.
         Given a set of neighboring capitals owned by states with various expansionalism,
@@ -320,7 +320,7 @@ describe("expandStates", () => {
 
     });
 
-    describe("Nomadic and Naval compete for sea crossing", () => {
+    describe("when Nomadic and Naval compete for sea crossing", () => {
         /*
         Naval states incur a much lower cost than Nomadic states when crossing oceans (h < 20).
         When they are equidistant to a neutral island (neutral cells surrounded by cells with h < 20),
