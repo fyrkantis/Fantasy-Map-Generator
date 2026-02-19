@@ -230,29 +230,43 @@ export class StatesModule {
 
   normalize() {
     TIME && console.time("normalizeStates");
-    const { cells, burgs } = pack;
+    const { cells } = pack;
 
     for (const i of cells.i) {
-      if (cells.h[i] < 20 || cells.burg[i]) continue; // do not overwrite burgs
-      if (pack.states[cells.state[i]]?.lock) continue; // do not overwrite cells of locks states
-      if (cells.c[i].some((c) => burgs[cells.burg[c]].capital)) continue; // do not overwrite near capital
+      if (!this.isCellOverwritable(i)) continue;
       const neibs = cells.c[i].filter((c) => cells.h[c] >= 20);
       const adversaries = neibs.filter(
         (c) =>
           !pack.states[cells.state[c]]?.lock &&
           cells.state[c] !== cells.state[i],
       );
-      if (adversaries.length < 2) continue;
-      const buddies = neibs.filter(
-        (c) =>
-          !pack.states[cells.state[c]]?.lock &&
-          cells.state[c] === cells.state[i],
-      );
-      if (buddies.length > 2) continue;
-      if (adversaries.length <= buddies.length) continue;
+      if (!this.allAdversariesBuddies(i, neibs, adversaries)) continue;
       cells.state[i] = cells.state[adversaries[0]];
     }
     TIME && console.timeEnd("normalizeStates");
+  }
+
+  private isCellOverwritable(i: number): boolean {
+    const { cells, burgs } = pack;
+
+    if (cells.h[i] < 20 || cells.burg[i]) return false; // do not overwrite burgs
+    if (pack.states[cells.state[i]]?.lock) return false; // do not overwrite cells of locks states
+    if (cells.c[i].some((c) => burgs[cells.burg[c]].capital)) return false; // do not overwrite near capital
+    return true;
+  }
+
+  private allAdversariesBuddies(i: number, neibs: number[], adversaries: number[]): boolean {
+    const { cells } = pack;
+
+    if (adversaries.length < 2) return false;
+    const buddies = neibs.filter(
+      (c) =>
+        !pack.states[cells.state[c]]?.lock &&
+        cells.state[c] === cells.state[i],
+    );
+    if (buddies.length > 2) return false;
+    if (adversaries.length <= buddies.length) return false;
+    return true
   }
 
   // calculate pole of inaccessibility for each state
