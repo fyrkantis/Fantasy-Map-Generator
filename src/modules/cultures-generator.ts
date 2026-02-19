@@ -1331,7 +1331,7 @@ class CulturesModule {
       const f = pack.features[cells.f[i]],
         a = cells.area[i];
       if (type === "Lake" && f.type === "lake") return 10; // no lake crossing penalty for Lake cultures
-      if (type === "Highland") { return getHighlandHeightCost; }
+      if (type === "Highland") { return getHighlandHeightCost(h); }
       if (h<20) { // sea/lake crossing penalty
           if (type === "Naval") return a * 2; // low for Naval cultures
           else if (type === "Nomadic") return a * 50; // giant for Nomads
