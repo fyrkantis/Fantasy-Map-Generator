@@ -182,6 +182,18 @@ class StatesModule {
     }
   }
 
+  private stateValid(state: State) {
+    return state.i && !state.removed;
+  }
+
+  private getGlobalGrowthRate() {
+    return (byId("growthRate") as HTMLInputElement)?.valueAsNumber || 1;
+  }
+
+  private getStatesGrowthRate() {
+    return(byId("statesGrowthRate") as HTMLInputElement)?.valueAsNumber || 1;
+  }
+
   expandStates() {
     TIME && console.time("expandStates");
     const { cells, states, cultures, burgs } = pack;
@@ -191,10 +203,9 @@ class StatesModule {
     const queue = new FlatQueue();
     const cost: number[] = [];
 
-    const globalGrowthRate =
-      (byId("growthRate") as HTMLInputElement)?.valueAsNumber || 1;
-    const statesGrowthRate =
-      (byId("statesGrowthRate") as HTMLInputElement)?.valueAsNumber || 1;
+    const globalGrowthRate = this.getGlobalGrowthRate();
+      
+    const statesGrowthRate = this.getStatesGrowthRate();
     const growthRate =
       (cells.i.length / 2) * globalGrowthRate * statesGrowthRate; // limit cost for state growth
 
@@ -202,7 +213,7 @@ class StatesModule {
     this.resetCellStates(cells, states);
 
     for (const state of states) {
-      if (!state.i || state.removed) continue;
+      if (!this.stateValid(state)) continue;
 
       const capitalCell = burgs[state.capital].cell;
       cells.state[capitalCell] = state.i;
