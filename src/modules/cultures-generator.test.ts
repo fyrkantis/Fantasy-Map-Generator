@@ -12,6 +12,47 @@ class MockQueue {
     pop() { return this.queue.shift(); }
 }
 
+const dummyCulture: Culture = 
+    { // Culture that unocuppied cells have
+        name: "dummy",
+        i: 0,
+        base: 0,
+        shield: "",
+        lock: true,
+        expansionism: 1e-10
+    }
+
+const testCulture: Culture = 
+    { // Culture of test cell
+        name: "test",
+        i: 1,
+        base: 0,
+        shield: "",
+        lock: false,
+        type: "",
+        expansionism: 1,
+        center: 0
+    }
+
+const feat: PackedGraphFeature = 
+    {
+        i:0,
+        type: "island",
+        land: true,
+        border: true,
+        cells:0,
+        firstCell:-1,
+        vertices: [],
+        area: 0,
+        shoreline:[],
+        height:0,
+        group:"",
+        temp:0,
+        flux:0,
+        evaporation:0,
+        name:"testFeat"
+    }
+
 beforeEach(() => {
     (globalThis as any).pack = {};
     (globalThis as any).Cultures = new CulturesModule();
@@ -38,7 +79,7 @@ beforeEach(() => {
     const r = [];
     for (let j = 0; j< 100; j++) {r.push(0);} // No cell has a river.
     const t = [];
-    for (let j = 0; j< 100; j++) {t.push(-1);} // All cells have terrain ty -1 (no getTypeCost() penalty).
+    for (let j = 0; j< 100; j++) {t.push(255);} // All cells have terrain to 255 (no getTypeCost() penalty if culture is neither "Lake" nor "Naval").
     const f = [];
     for (let j = 0; j < 100; j++) {f.push(0)} // All cells will have the same feature.
     // Set the pack.cells global variable
@@ -49,7 +90,7 @@ beforeEach(() => {
         p: [] as [number, number][],
         b: [] as boolean[],
         h: createTypedArray({maxValue: 100, length: 100, from: h}),
-        t: createTypedArray({maxValue: -1, length: 100, from: t}),
+        t: createTypedArray({maxValue: 255, length: 100, from: t}),
         r: createTypedArray({maxValue: 100, length: 100, from: r}),
         f: createTypedArray({maxValue: 100, length: 100, from: f}),
         fl: createTypedArray({maxValue: 100, length: 100, from: fl}),
@@ -74,10 +115,11 @@ describe("expand", () => {
     describe("getHeightCost", () => {
         /**Design idea: The getHeightCost function is internal and its results are aggregated with results
          * of getBiomeCost(), getTypeCost(), getRiverCost(), and values biomeChangeCost, expansionism, priority.
-         * The cases crafts three locked cells which will be expanding, called test cell (one) and control cells (two),
+         * The cases crafts cells which will be expanding, called test cell (one) and control cells (two),
          * and one culture for each of them. In addition to these, some neighboring cells and cultures will be 
-         * created such that such that: cells.r[i] = 0, cells.t[i] = -1, cells.biomes[i] === cells.biomes[j], the 
-         * culture of test cell has expansionism 1. This should yield a total expansion cost of getHeightCost() + 10 
+         * created such that such that: cells.r[i] = 0, cells.t[i] = 255, cells.biomes[i] === cells.biomes[j], the 
+         * culture of test cell has expansionism 1. This should yield a total expansion cost of getHeightCost() + 10
+         * if the culture neither "Naval" nor "Lake", if the culture is to be either of those, then cells.t[i] is changed to 1 
          * for the test cell, from which we may infer if the correct value of getHeightCost() was attained by 
          * comparing to the control cells. One control cell, called upper, will have a total cost of expansion 
          * between getHeightCost() + 10 and getHeightCost() + 11 (exclusive), then the test cell should expand 
@@ -91,33 +133,12 @@ describe("expand", () => {
             it("should not lead to height penalties for non-highlanders", () => {
                 /**Expected total expansion cost given setup: 10 */
                 /**Create mock cultures */
-                const dummyCulture: Culture = { // Culture that unocuppied cells have
-                    name: "dummy",
-                    i: 0,
-                    base: 0,
-                    shield: "",
-                    lock: true,
-                    expansionism: 1e-10
-                }
-                const testCulture: Culture = { // Culture of test cell
-                    name: "test",
-                    i: 1,
-                    base: 0,
-                    shield: "",
-                    lock: false,
-                    type: "Nomadic",
-                    expansionism: 1,
-                    center: 0
-                }  
+                testCulture.type = "Nomadic"
                 const lower = Object.assign({}, testCulture); // The culture of lower
                 lower.expansionism = 1.05 // Ensures total cost 9.52 in this case 
-                lower.i = 2;
-                lower.center = 1;
                 lower.lock = true; // Initially lock the lower to allow testing against upper.
                 const upper = Object.assign({}, testCulture); // The culture of upper
                 upper.expansionism = 0.95 // Ensures total cost 10.52 in this case
-                upper.i = 3;
-                upper.center = 2;
                 const cultures = [dummyCulture, testCulture, lower, upper];
                 pack.cells.culture[0] = testCulture.i;
                 pack.cells.culture[1] = lower.i;
@@ -127,23 +148,6 @@ describe("expand", () => {
                 pack.cells.h[3]=43;
                 // Fill the rest with heights in the inclusive interval
                 for (let j = 4; j < 100; j++) {pack.cells.h[j]=rand(20,43);}
-                const feat: PackedGraphFeature = {
-                    i:0,
-                    type: "island",
-                    land: true,
-                    border: true,
-                    cells:0,
-                    firstCell:-1,
-                    vertices: [],
-                    area: 0,
-                    shoreline:[],
-                    height:0,
-                    group:"",
-                    temp:0,
-                    flux:0,
-                    evaporation:0,
-                    name:"testFeat"
-                }
                 pack.cultures = cultures
                 pack.features = [feat];
                 // Perform expansion
@@ -152,9 +156,6 @@ describe("expand", () => {
                 
                 // Assert the changes against upper
                 // All the cells with indices 2 and up have the test culture's culture id assigned
-                pack.cells.culture.slice(2).forEach(item => {
-                    console.log(item);
-                })
                 expect(pack.cells.culture.slice(3).every(item => item === testCulture.i)).toBe(true)
 
                 // Reset the neighboring cells
@@ -174,24 +175,7 @@ describe("expand", () => {
             it("should not lead to height penalties for highlanders", () => {
                 /**Expected total expansion cost given setup: 10 */
                 /**Create mock cultures */
-                const dummyCulture: Culture = { // Culture that unocuppied cells have
-                    name: "dummy",
-                    i: 0,
-                    base: 0,
-                    shield: "",
-                    lock: true,
-                    expansionism: 1e-10
-                }
-                const testCulture: Culture = { // Culture of test cell
-                    name: "test",
-                    i: 1,
-                    base: 0,
-                    shield: "",
-                    lock: false,
-                    type: "Highland",
-                    expansionism: 1,
-                    center: 0
-                }  
+                testCulture.type = "Highland";  
                 const lower = Object.assign({}, testCulture); // The culture of lower
                 lower.expansionism = 1.05 // Ensures total cost 9.52 in this case 
                 lower.i = 2;
@@ -209,23 +193,6 @@ describe("expand", () => {
                 pack.cells.h[2]=62;
                 // Fill the rest with heights in the inclusive interval
                 for (let j = 3; j < 100; j++) {pack.cells.h[j]=rand(62,100);}
-                const feat: PackedGraphFeature = {
-                    i:0,
-                    type: "island",
-                    land: true,
-                    border: true,
-                    cells:0,
-                    firstCell:-1,
-                    vertices: [],
-                    area: 0,
-                    shoreline:[],
-                    height:0,
-                    group:"",
-                    temp:0,
-                    flux:0,
-                    evaporation:0,
-                    name:"testFeat"
-                }
                 pack.cultures = cultures
                 pack.features = [feat];
                 // Perform expansion
@@ -234,9 +201,6 @@ describe("expand", () => {
                 
                 // Assert the changes against upper
                 // All the cells with indices 2 and up have the test culture's culture id assigned
-                pack.cells.culture.slice(3).forEach(item => {
-                    console.log(item);
-                })
                 expect(pack.cells.culture.slice(3).every(item => item === testCulture.i)).toBe(true)
 
                 // Reset the neighboring cells
@@ -259,24 +223,8 @@ describe("expand", () => {
                 // Set cells.t[i] to 1, so that getTypeCost() returns 0
                 for (let j = 0; j<100; j++) {pack.cells.t[j]=1;}
                 /**Create mock cultures */
-                const dummyCulture: Culture = { // Culture that unocuppied cells have
-                    name: "dummy",
-                    i: 0,
-                    base: 0,
-                    shield: "",
-                    lock: true,
-                    expansionism: 1e-10
-                }
-                const testCulture: Culture = {
-                    name: "test",
-                    i: 0,
-                    base: 0,
-                    shield: "",
-                    lock: true,
-                    type: "Lake",
-                    expansionism: 1,
-                    area: 1,
-                }
+                testCulture.type = "Lake";
+                testCulture.area = 1;
                 const lower = Object.assign({}, testCulture); // The culture of lower
                 lower.expansionism = 1.05 // Ensures total cost 15.23 in this case 
                 lower.i = 2;
@@ -295,23 +243,6 @@ describe("expand", () => {
                 pack.cells.h[2]=19;
                 // Fill the rest with heights in the inclusive interval
                 for (let j = 3; j < 100; j++) {pack.cells.h[j]=rand(0,19);}
-                const feat: PackedGraphFeature = {
-                    i:0,
-                    type: "island",
-                    land: true,
-                    border: true,
-                    cells:0,
-                    firstCell:-1,
-                    vertices: [],
-                    area: 0,
-                    shoreline:[],
-                    height:0,
-                    group:"",
-                    temp:0,
-                    flux:0,
-                    evaporation:0,
-                    name:"testFeat"
-                }
                 pack.cultures = cultures
                 pack.features = [feat];
                 // Perform expansion
@@ -320,9 +251,6 @@ describe("expand", () => {
                 
                 // Assert the changes against upper
                 // All the cells with indices 2 and up have the test culture's culture id assigned
-                pack.cells.culture.slice(3).forEach(item => {
-                    console.log(item);
-                })
                 expect(pack.cells.culture.slice(3).every(item => item === testCulture.i)).toBe(true)
 
                 // Reset the neighboring cells
@@ -342,24 +270,8 @@ describe("expand", () => {
             it("The penalty should always be 6*area for all non-Lake cultures.", () => {
                 /**Expected total expansion cost given setup: 6*a + 10 = 16 (a=1) */
                 /**Create mock cultures */
-                const dummyCulture: Culture = { // Culture that unocuppied cells have
-                    name: "dummy",
-                    i: 0,
-                    base: 0,
-                    shield: "",
-                    lock: true,
-                    expansionism: 1e-10
-                }
-                const testCulture: Culture = {
-                    name: "test",
-                    i: 0,
-                    base: 0,
-                    shield: "",
-                    lock: true,
-                    type: "Highland",
-                    expansionism: 1,
-                    area: 1,
-                }
+                testCulture.type = "Highland";
+                testCulture.area = 1;
                 const lower = Object.assign({}, testCulture); // The culture of lower
                 lower.expansionism = 1.05 // Ensures total cost 15.23 in this case 
                 lower.i = 2;
@@ -378,23 +290,6 @@ describe("expand", () => {
                 pack.cells.h[2]=19;
                 // Fill the rest with heights in the inclusive interval
                 for (let j = 3; j < 100; j++) {pack.cells.h[j]=rand(0,19);}
-                const feat: PackedGraphFeature = {
-                    i:0,
-                    type: "island",
-                    land: true,
-                    border: true,
-                    cells:0,
-                    firstCell:-1,
-                    vertices: [],
-                    area: 0,
-                    shoreline:[],
-                    height:0,
-                    group:"",
-                    temp:0,
-                    flux:0,
-                    evaporation:0,
-                    name:"testFeat"
-                }
                 pack.cultures = cultures
                 pack.features = [feat];
                 // Perform expansion
@@ -403,9 +298,6 @@ describe("expand", () => {
                 
                 // Assert the changes against upper
                 // All the cells with indices 2 and up have the test culture's culture id assigned
-                pack.cells.culture.slice(3).forEach(item => {
-                    console.log(item);
-                })
                 expect(pack.cells.culture.slice(3).every(item => item === testCulture.i)).toBe(true)
 
                 // Reset the neighboring cells
@@ -424,8 +316,6 @@ describe("expand", () => {
     });
 });
         
-
-
 afterEach(() => {
     (globalThis as any).TIME = undefined;
     (globalThis as any).pack = undefined;
