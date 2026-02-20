@@ -10,7 +10,7 @@ import {
   rand,
   rn,
   rw,
-} from "../utils";
+} from "../utils"; 
 
 declare global {
   var Cultures: CulturesModule;
@@ -37,7 +37,7 @@ export interface Culture {
   urban?: number;
 }
 
-class CulturesModule {
+export class CulturesModule {
   cells: any;
 
   getRandomShield() {
@@ -1294,7 +1294,7 @@ class CulturesModule {
     const neutralRate =
       (byId("neutralRate") as HTMLInputElement)?.valueAsNumber || 1;
     const maxExpansionCost = cells.i.length * 0.6 * neutralRate; // limit cost for culture growth
-
+    
     // remove culture from all cells except of locked
     const hasLocked = cultures.some((c) => !c.removed && c.lock);
     if (hasLocked) {
