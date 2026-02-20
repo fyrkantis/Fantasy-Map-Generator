@@ -1322,25 +1322,25 @@ class CulturesModule {
         return biomesData.cost[biome] * 10; // forest biome penalty for nomads
       return biomesData.cost[biome] * 2; // general non-native biome penalty
     };
+    const getHighlandHeightCost = (h: number) => {
+      if (h < 44) return 3000; // giant penalty for highlanders on lowlands
+      else if (h < 62) return 200; // giant penalty for highlanders on lowhills
+      else return 0; // no penalty for highlanders on highlands
+    };
     const getHeightCost = (i: number, h: number, type: string) => {
       const f = pack.features[cells.f[i]],
         a = cells.area[i];
       if (type === "Lake" && f.type === "lake") return 10; // no lake crossing penalty for Lake cultures
+      if (type === "Highland") { return getHighlandHeightCost(h); }
       if (h<20) { // sea/lake crossing penalty
           if (type === "Naval") return a * 2; // low for Naval cultures
           else if (type === "Nomadic") return a * 50; // giant for Nomads
           else return a * 6; // general
       }
-      if (type === "Highland") {
-        if (h < 44) return 3000; // giant penalty for highlanders on lowlands
-        else if (h < 62) return 200; // giant penalty for highlanders on lowhills
-        else return 0; // no penalty for highlanders on highlands
-      }
-      if (h >= 67) return 200; // general mountains crossing penalty
+      else if (h >= 67) return 200; // general mountains crossing penalty
       else if (h >= 44) return 30; // general hills crossing penalty
       else return 0;
     };
-
     const getRiverCost = (riverId: number, cellId: number, type: string) => {
       if (type === "River") return riverId ? 0 : 100; // penalty for river cultures
       if (!riverId) return 0; // no penalty for others if there is no river
