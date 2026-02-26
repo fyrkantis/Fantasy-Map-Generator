@@ -8,5 +8,11 @@ describe("When the height is less than 20", () => {
     })
 })
 
+describe("When the temperature is less than -5", () =>{
+    it("returns 11 for too cold: permafrost biome", ()=> {
+        expect((globalThis as any).Biomes.getId(21, -6, 21, false)).toBe(11);
+    })
+})
+
 
 
