@@ -14,5 +14,10 @@ describe("When the temperature is less than -5", () =>{
     })
 })
 
+describe("When the temperature is more than or equal to 25 and has no river and moisture is less than 8", () => {
+    it("returns 1 for too hot and dry: hot desert biome", () => {
+        expect((globalThis as any).Biomes.getId(7, 25, 21, false)).toBe(1);
+    })
+})
 
 
