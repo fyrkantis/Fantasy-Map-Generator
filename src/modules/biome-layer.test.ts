@@ -20,4 +20,15 @@ describe("When the temperature is more than or equal to 25 and has no river and 
     })
 })
 
+describe("When the moisture is more than 40 and height is less than 25", () => {
+    it("returns 12 for too wet: wetland biome", () => {
+        expect((globalThis as any).Biomes.getId(41, 20, 24, false)).toBe(12);
+    })
+})
+
+describe("When the moisture is more than 24 and height is more than 24 and less than 60", () => {
+    it("returns 12 for too wet: wetland biome", () => {
+        expect((globalThis as any).Biomes.getId(25, 20, 25, false)).toBe(12);
+    })
+})
 
