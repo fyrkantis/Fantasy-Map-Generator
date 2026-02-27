@@ -186,6 +186,7 @@ function drawLayers() {
   drawFeatures();
   if (layerIsOn("toggleTexture")) drawTexture();
   if (layerIsOn("toggleHeight")) drawHeightmap();
+	if (layerIsOn("toggleHabitability")) drawHabitability();
   if (layerIsOn("toggleBiomes")) drawBiomes();
   if (layerIsOn("toggleCells")) drawCells();
   if (layerIsOn("toggleGrid")) drawGrid();
@@ -239,6 +240,19 @@ function toggleTemperature(event) {
     turnButtonOff("toggleTemperature");
     temperature.selectAll("*").remove();
   }
+}
+
+function toggleHabitability(event) {
+	const children = terrs.selectAll("#oceanHabitability > *, #landHabitability > *");
+	if (!children.size()) {
+		turnButtonOn("toggleHabitability");
+		drawHabitability();
+		if (event && isCtrlClick(event)) editStyle("habitability");
+	} else {
+		if (event && isCtrlClick(event)) return editStyle("habitability");
+		children.remove();
+		turnButtonOff("toggleHabitability");
+	}
 }
 
 function toggleBiomes(event) {
