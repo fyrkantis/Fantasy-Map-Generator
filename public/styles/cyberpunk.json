@@ -17,6 +17,11 @@
     "filter": "",
     "mask": "url(#land)"
   },
+	"#habitability": {
+		"opacity": null,
+		"filter": null,
+		"mask": "url(#land)"
+	},
   "#stateBorders": {
     "opacity": 1,
     "stroke": "#ffffff",
