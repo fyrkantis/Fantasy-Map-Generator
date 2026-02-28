@@ -44,6 +44,7 @@ let lakes = viewbox.append("g").attr("id", "lakes");
 let landmass = viewbox.append("g").attr("id", "landmass");
 let texture = viewbox.append("g").attr("id", "texture");
 let terrs = viewbox.append("g").attr("id", "terrs");
+let habitability = viewbox.append("g").attr("id", "habitability");
 let biomes = viewbox.append("g").attr("id", "biomes");
 let cells = viewbox.append("g").attr("id", "cells");
 let gridOverlay = viewbox.append("g").attr("id", "gridOverlay");
