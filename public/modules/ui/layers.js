@@ -243,16 +243,31 @@ function toggleTemperature(event) {
 }
 
 function toggleHabitability(event) {
-	const children = terrs.selectAll("#oceanHabitability > *, #landHabitability > *");
-	if (!children.size()) {
+	if (!habitability.selectAll("path").size()) {
 		turnButtonOn("toggleHabitability");
 		drawHabitability();
 		if (event && isCtrlClick(event)) editStyle("habitability");
 	} else {
 		if (event && isCtrlClick(event)) return editStyle("habitability");
-		children.remove();
+		habitability.selectAll("path").remove();
 		turnButtonOff("toggleHabitability");
 	}
+}
+
+function drawHabitability() {
+	TIME && console.time("drawHabitability");
+
+	const cells = pack.cells;
+	const bodyPaths = new Array(biomesData.i.length - 1);
+	const isolines = getIsolines(pack, cellId => biomesData.habitability[cells.biome[cellId]], { fill: true, waterGap: true });
+	Object.entries(isolines).forEach(([index, { fill, waterGap }]) => {
+		const color = biomesData.color[index]; // TODO: Replace with proper color gradient like the heightmap.
+		bodyPaths.push(getGappedFillPaths("habitability", fill, waterGap, color, index));
+	});
+
+	byId("habitability").innerHTML = bodyPaths.join("");
+
+	TIME && console.timeEnd("drawHabitability");
 }
 
 function toggleBiomes(event) {
@@ -994,6 +1009,7 @@ function moveLayer(event, ui) {
 // define connection between option layer buttons and actual svg groups to move the element
 function getLayer(id) {
   if (id === "toggleHeight") return $("#terrs");
+	if (id === "toggleHabitability") return $("#habitability");
   if (id === "toggleBiomes") return $("#biomes");
   if (id === "toggleCells") return $("#cells");
   if (id === "toggleGrid") return $("#gridOverlay");

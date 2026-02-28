@@ -3,7 +3,6 @@ import "./draw-burg-icons";
 import "./draw-burg-labels";
 import "./draw-emblems";
 import "./draw-features";
-import "./draw-habitability";
 import "./draw-heightmap";
 import "./draw-ice";
 import "./draw-markers";
