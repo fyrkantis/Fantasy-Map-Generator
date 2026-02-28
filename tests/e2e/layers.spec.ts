@@ -70,6 +70,13 @@ test.describe('map layers', () => {
     expect(html).toMatchSnapshot('biomes.html')
   })
 
+  test('habitability layer', async ({ page }) => {
+    const habitability = page.locator('#habitability')
+    await expect(habitability).toBeAttached()
+    const html = await habitability.evaluate((el) => el.outerHTML)
+    expect(html).toMatchSnapshot('habitability.html')
+  })
+
   test('ice layer', async ({ page }) => {
     const ice = page.locator('#ice')
     await expect(ice).toBeAttached()
