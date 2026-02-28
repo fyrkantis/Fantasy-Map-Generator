@@ -21,7 +21,8 @@
 	"#habitability": {
 		"opacity": null,
 		"filter": null,
-		"mask": "url(#land)"
+		"mask": "url(#land)",
+		"scheme": "heatmap"
 	},
   "#stateBorders": {
     "opacity": 1,
