@@ -50,10 +50,19 @@ const heightmapColorSchemes = {
   monochrome: d3.scaleSequential(d3.interpolateGreys)
 };
 
+const habitabilityColorSchemes = {
+	heatmap: d3.scaleSequential(d3.interpolateRgbBasis(["#00FF00", "#FFFF00", "#FF0000"])),
+	monochrome: d3.scaleSequential(d3.interpolateGreys),
+};
+
 // add default color schemes to the list of options
 byId("styleHeightmapScheme").innerHTML = Object.keys(heightmapColorSchemes)
   .map(scheme => `<option value="${scheme}">${scheme}</option>`)
   .join("");
+
+byId("styleHabitabilityScheme").innerHTML = Object.keys(habitabilityColorSchemes)
+	.map(scheme => `<option value="${scheme}">${scheme}</option>`)
+	.join("");
 
 function addCustomColorScheme(scheme) {
   const stops = scheme.split(",");
@@ -70,8 +79,21 @@ function getColorScheme(scheme = "bright") {
   return heightmapColorSchemes[scheme];
 }
 
+function getHabitabilityColorScheme(scheme = "heatmap") {
+	if (!(scheme in habitabilityColorSchemes)) {
+		const colors = scheme.split(",");
+		habitabilityColorSchemes[scheme] = d3.scaleSequential(d3.interpolateRgbBasis(colors));
+	}
+
+	return habitabilityColorSchemes[scheme];
+}
+
 function getColor(value, scheme = getColorScheme("bright")) {
   return scheme(1 - (value < 20 ? value - 5 : value) / 100);
+}
+
+function getHabitabilityColor(value, scheme = getHabitabilityColorScheme()) {
+	return scheme(1. - (value / 100.));
 }
 
 // Toggle style sections on element select
@@ -199,6 +221,11 @@ function selectStyleElement() {
     styleHeightmapSimplification.value = el.attr("relax");
     styleHeightmapCurve.value = el.attr("curve");
   }
+
+	if (styleElement === "habitability") {
+		styleHabitability.style.display = "block"
+		styleHeightmapScheme.value = el.attr("scheme");
+	}
 
   if (styleElement === "markers") {
     styleMarkers.style.display = "block";
@@ -582,6 +609,11 @@ outlineLayers.on("change", function () {
 styleHeightmapScheme.on("change", function () {
   getEl().attr("scheme", this.value);
   drawHeightmap();
+});
+
+styleHabitabilityScheme.on("change", function () {
+	getEl().attr("scheme", this.value);
+	drawHabitability();
 });
 
 openCreateHeightmapSchemeButton.on("click", function () {

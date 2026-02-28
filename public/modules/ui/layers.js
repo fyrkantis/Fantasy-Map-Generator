@@ -259,9 +259,11 @@ function drawHabitability() {
 
 	const cells = pack.cells;
 	const bodyPaths = new Array(biomesData.i.length - 1);
-	const isolines = getIsolines(pack, cellId => biomesData.habitability[cells.biome[cellId]], { fill: true, waterGap: true });
+	const isolines = getIsolines(pack, cellId => cells.biome[cellId], { fill: true, waterGap: true });
 	Object.entries(isolines).forEach(([index, { fill, waterGap }]) => {
-		const color = biomesData.color[index]; // TODO: Replace with proper color gradient like the heightmap.
+		const scheme = getHabitabilityColorScheme(habitability.attr("scheme"))
+		const color = getHabitabilityColor(biomesData.habitability[index], scheme);
+
 		bodyPaths.push(getGappedFillPaths("habitability", fill, waterGap, color, index));
 	});
 

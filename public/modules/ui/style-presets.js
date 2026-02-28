@@ -186,7 +186,7 @@ function addStylePreset() {
       "#map": ["background-color", "filter", "data-filter"],
       "#armies": ["font-size", "box-size", "stroke", "stroke-width", "fill-opacity", "filter"],
       "#biomes": ["opacity", "filter", "mask"],
-			"#habitability": ["opacity", "filter", "mask"],
+			"#habitability": ["opacity", "filter", "mask", "scheme"],
       "#stateBorders": ["opacity", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "filter"],
       "#provinceBorders": ["opacity", "stroke", "stroke-width", "stroke-dasharray", "stroke-linecap", "filter"],
       "#cells": ["opacity", "stroke", "stroke-width", "filter", "mask"],
