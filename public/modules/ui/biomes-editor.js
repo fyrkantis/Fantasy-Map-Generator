@@ -52,7 +52,6 @@ function editBiomes() {
     if (cl.contains("biomeName")) biomeChangeName(el);
     else if (cl.contains("biomeHabitability")) {
       biomeChangeHabitability(el);
-      
       if (layerIsOn("toggleBiomes")) toggleBiomes();
       if (!layerIsOn("toggleHabitability")) toggleHabitability();
       drawHabitability();
