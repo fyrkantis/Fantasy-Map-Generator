@@ -3,6 +3,7 @@ function editBiomes() {
   if (customization) return;
   closeDialogs("#biomesEditor, .stable");
   if (!layerIsOn("toggleBiomes")) toggleBiomes();
+  if (layerIsOn("toggleHabitability")) toggleHabitability();
   if (layerIsOn("toggleStates")) toggleStates();
   if (layerIsOn("toggleCultures")) toggleCultures();
   if (layerIsOn("toggleReligions")) toggleReligions();
@@ -51,6 +52,9 @@ function editBiomes() {
     if (cl.contains("biomeName")) biomeChangeName(el);
     else if (cl.contains("biomeHabitability")) {
       biomeChangeHabitability(el);
+      
+      if (layerIsOn("toggleBiomes")) toggleBiomes();
+      if (!layerIsOn("toggleHabitability")) toggleHabitability();
       drawHabitability();
     };
   });
