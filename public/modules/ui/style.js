@@ -51,8 +51,8 @@ const heightmapColorSchemes = {
 };
 
 const habitabilityColorSchemes = {
-	heatmap: d3.scaleSequential(d3.interpolateRgbBasis(["#00FF00", "#FFFF00", "#FF0000"])),
-	monochrome: d3.scaleSequential(d3.interpolateGreys),
+  heatmap: d3.scaleSequential(d3.interpolateRgbBasis(["#00FF00", "#FFFF00", "#FF0000"])),
+  monochrome: d3.scaleSequential(d3.interpolateGreys),
 };
 
 // add default color schemes to the list of options
@@ -61,8 +61,8 @@ byId("styleHeightmapScheme").innerHTML = Object.keys(heightmapColorSchemes)
   .join("");
 
 byId("styleHabitabilityScheme").innerHTML = Object.keys(habitabilityColorSchemes)
-	.map(scheme => `<option value="${scheme}">${scheme}</option>`)
-	.join("");
+  .map(scheme => `<option value="${scheme}">${scheme}</option>`)
+  .join("");
 
 function addCustomColorScheme(scheme) {
   const stops = scheme.split(",");
@@ -80,12 +80,12 @@ function getColorScheme(scheme = "bright") {
 }
 
 function getHabitabilityColorScheme(scheme = "heatmap") {
-	if (!(scheme in habitabilityColorSchemes)) {
-		const colors = scheme.split(",");
-		habitabilityColorSchemes[scheme] = d3.scaleSequential(d3.interpolateRgbBasis(colors));
-	}
+  if (!(scheme in habitabilityColorSchemes)) {
+    const colors = scheme.split(",");
+    habitabilityColorSchemes[scheme] = d3.scaleSequential(d3.interpolateRgbBasis(colors));
+  }
 
-	return habitabilityColorSchemes[scheme];
+  return habitabilityColorSchemes[scheme];
 }
 
 function getColor(value, scheme = getColorScheme("bright")) {
@@ -93,7 +93,7 @@ function getColor(value, scheme = getColorScheme("bright")) {
 }
 
 function getHabitabilityColor(value, scheme = getHabitabilityColorScheme()) {
-	return scheme(1. - (value / 100.));
+  return scheme(1. - (value / 100.));
 }
 
 // Toggle style sections on element select
@@ -145,7 +145,7 @@ function selectStyleElement() {
       "coordinates",
       "cults",
       "gridOverlay",
-			"habitability",
+      "habitability",
       "ice",
       "icons",
       "lakes",
@@ -188,7 +188,7 @@ function selectStyleElement() {
       "compass",
       "coordinates",
       "gridOverlay",
-			"habitability",
+      "habitability",
       "population",
       "prec",
       "routes",
@@ -222,10 +222,10 @@ function selectStyleElement() {
     styleHeightmapCurve.value = el.attr("curve");
   }
 
-	if (styleElement === "habitability") {
-		styleHabitability.style.display = "block"
-		styleHeightmapScheme.value = el.attr("scheme");
-	}
+  if (styleElement === "habitability") {
+    styleHabitability.style.display = "block"
+    styleHeightmapScheme.value = el.attr("scheme");
+  }
 
   if (styleElement === "markers") {
     styleMarkers.style.display = "block";
@@ -612,8 +612,8 @@ styleHeightmapScheme.on("change", function () {
 });
 
 styleHabitabilityScheme.on("change", function () {
-	getEl().attr("scheme", this.value);
-	drawHabitability();
+  getEl().attr("scheme", this.value);
+  drawHabitability();
 });
 
 openCreateHeightmapSchemeButton.on("click", function () {
