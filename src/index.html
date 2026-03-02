@@ -494,6 +494,11 @@
             >
               <u>H</u>eightmap
             </li>
+						<li id="toggleHabitability"
+							data-tip="Habitability: click to toggle, drag to raise or lower the layer. Ctrl + click to edit layer style"
+							data-shortcut="Q" onclick="toggleHabitability(event)">
+							Habitability
+						</li>
             <li
               id="toggleBiomes"
               data-tip="Biomes: click to toggle, drag to raise or lower the layer. Ctrl + click to edit layer style"
@@ -768,6 +773,7 @@
             <option value="emblems">Emblems</option>
             <option value="fogging">Fogging</option>
             <option value="gridOverlay">Grid</option>
+						<option value="habitability">Habitability</option>
             <option value="terrs">Heightmap</option>
             <option value="ice">Ice</option>
             <option value="labels">Labels</option>
@@ -1551,6 +1557,15 @@
               <tr data-tip="Select background filter">
                 <td>Back filter</td>
                 <td><select id="styleScaleBarBackgroundFilter" /></td>
+              </tr>
+            </tbody>
+
+						<tbody id="styleHabitability">
+							<tr data-tip="Select color scheme for habitability">
+                <td>Color scheme</td>
+                <td>
+                  <select id="styleHabitabilityScheme" style="width: 86%"></select>
+                </td>
               </tr>
             </tbody>
           </table>

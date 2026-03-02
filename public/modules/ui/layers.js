@@ -186,6 +186,7 @@ function drawLayers() {
   drawFeatures();
   if (layerIsOn("toggleTexture")) drawTexture();
   if (layerIsOn("toggleHeight")) drawHeightmap();
+	if (layerIsOn("toggleHabitability")) drawHabitability();
   if (layerIsOn("toggleBiomes")) drawBiomes();
   if (layerIsOn("toggleCells")) drawCells();
   if (layerIsOn("toggleGrid")) drawGrid();
@@ -239,6 +240,36 @@ function toggleTemperature(event) {
     turnButtonOff("toggleTemperature");
     temperature.selectAll("*").remove();
   }
+}
+
+function toggleHabitability(event) {
+	if (!habitability.selectAll("path").size()) {
+		turnButtonOn("toggleHabitability");
+		drawHabitability();
+		if (event && isCtrlClick(event)) editStyle("habitability");
+	} else {
+		if (event && isCtrlClick(event)) return editStyle("habitability");
+		habitability.selectAll("path").remove();
+		turnButtonOff("toggleHabitability");
+	}
+}
+
+function drawHabitability() {
+	TIME && console.time("drawHabitability");
+
+	const cells = pack.cells;
+	const bodyPaths = new Array(biomesData.i.length - 1);
+	const isolines = getIsolines(pack, cellId => cells.biome[cellId], { fill: true, waterGap: true });
+	Object.entries(isolines).forEach(([index, { fill, waterGap }]) => {
+		const scheme = getHabitabilityColorScheme(habitability.attr("scheme"))
+		const color = getHabitabilityColor(biomesData.habitability[index], scheme);
+
+		bodyPaths.push(getGappedFillPaths("habitability", fill, waterGap, color, index));
+	});
+
+	byId("habitability").innerHTML = bodyPaths.join("");
+
+	TIME && console.timeEnd("drawHabitability");
 }
 
 function toggleBiomes(event) {
@@ -980,6 +1011,7 @@ function moveLayer(event, ui) {
 // define connection between option layer buttons and actual svg groups to move the element
 function getLayer(id) {
   if (id === "toggleHeight") return $("#terrs");
+	if (id === "toggleHabitability") return $("#habitability");
   if (id === "toggleBiomes") return $("#biomes");
   if (id === "toggleCells") return $("#cells");
   if (id === "toggleGrid") return $("#gridOverlay");

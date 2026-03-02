@@ -3,6 +3,7 @@ function editBiomes() {
   if (customization) return;
   closeDialogs("#biomesEditor, .stable");
   if (!layerIsOn("toggleBiomes")) toggleBiomes();
+  if (layerIsOn("toggleHabitability")) toggleHabitability();
   if (layerIsOn("toggleStates")) toggleStates();
   if (layerIsOn("toggleCultures")) toggleCultures();
   if (layerIsOn("toggleReligions")) toggleReligions();
@@ -49,7 +50,12 @@ function editBiomes() {
     const el = ev.target,
       cl = el.classList;
     if (cl.contains("biomeName")) biomeChangeName(el);
-    else if (cl.contains("biomeHabitability")) biomeChangeHabitability(el);
+    else if (cl.contains("biomeHabitability")) {
+      biomeChangeHabitability(el);
+      if (layerIsOn("toggleBiomes")) toggleBiomes();
+      if (!layerIsOn("toggleHabitability")) toggleHabitability();
+      drawHabitability();
+    };
   });
 
   function refreshBiomesEditor() {
@@ -445,6 +451,7 @@ function editBiomes() {
 
     if (changed.size()) {
       drawBiomes();
+      drawHabitability();
       refreshBiomesEditor();
     }
     exitBiomesCustomizationMode();
@@ -473,6 +480,7 @@ function editBiomes() {
     biomesData = Biomes.getDefault();
     Biomes.define();
     drawBiomes();
+    drawHabitability();
     recalculatePopulation();
     refreshBiomesEditor();
   }
