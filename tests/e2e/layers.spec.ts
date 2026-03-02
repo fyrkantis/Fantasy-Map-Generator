@@ -4,13 +4,13 @@ test.describe('map layers', () => {
   test.beforeEach(async ({ context, page }) => {
     // Clear all storage to ensure clean state
     await context.clearCookies()
-
+    
     await page.goto('/')
     await page.evaluate(() => {
       localStorage.clear()
       sessionStorage.clear()
     })
-    
+
     // Navigate with seed parameter and wait for full load
     // NOTE:
     // - We use a fixed seed ("test-seed") to make map generation deterministic for snapshot tests.
