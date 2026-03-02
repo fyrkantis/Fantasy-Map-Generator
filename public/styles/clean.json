@@ -18,12 +18,12 @@
     "filter": "url(#blur7)",
     "mask": "url(#land)"
   },
-	"#habitability": {
-		"opacity": null,
-		"filter": null,
-		"mask": "url(#land)",
-		"scheme": "heatmap"
-	},
+  "#habitability": {
+    "opacity": null,
+    "filter": null,
+    "mask": "url(#land)",
+    "scheme": "heatmap"
+  },
   "#stateBorders": {
     "opacity": 0.8,
     "stroke": "#414141",
